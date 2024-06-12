@@ -1,0 +1,6 @@
+local blacklistedHWIDs = {
+    "",
+    ""
+}
+
+return blacklistedHWIDs
