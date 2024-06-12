@@ -1,5 +1,5 @@
 local whitelistedHWIDs = {
-    ""
+    "64ff5754-8673-4aba-a122-2b90f01354be"
 }
 
 return whitelistedHWIDs
