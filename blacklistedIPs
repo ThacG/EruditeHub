@@ -1,5 +1,5 @@
 local blacklistedIPs = {
-    "",
+    "116.14.116.117"
 }
 
 return blacklistedIPs
