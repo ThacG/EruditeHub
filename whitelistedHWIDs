@@ -1,4 +1,5 @@
 local whitelistedHWIDs = {
+    "96492d90-c8af-465f-9da2-f2975b495821",
     ""
 }
 
