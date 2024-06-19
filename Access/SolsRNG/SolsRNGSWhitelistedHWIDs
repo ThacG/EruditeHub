@@ -1,1 +1,30 @@
+local whitelistedHWIDs = {
+    "96492d90-c8af-465f-9da2-f2975b495821",
+    "28634ae5-1cd8-44e1-90d4-9d0c1dacfba4",
+    "6ec7fc11-ee9b-4416-90e6-4de241d09473",
+    "34066249-30c7-4a63-8ca1-a58c81c05d6c",
+    "56e04f37-6935-4ff6-95fa-90f7f6f442fc",
+    "ab0cc4c2-862a-4789-a1bf-f87565c71ca8",
+    "7a95d384-9668-4e24-9271-35e1b886b959",
+    "0cacf0cf-4723-4304-8ff8-7933e0d7e372",
+    "c191893d-4c8f-4bcb-b6a5-df3267efcc01",
+    "567F7000-F726-44EF-9774-17B94C38D07F",
+    "C760AE26-C54A-4BCB-8567-2FA082D94701",
+    "dc9c8138-24e0-41c6-907c-db4822bcd408",
+    "32F5ED0D-16C4-4D5C-B382-738399A42186",
+    "2A21401D-D87B-4ABF-B314-65CBC1CA2486",
+    "59c789ac-b091-4cef-830c-640a7ab210ed",
+    "a64d6aed-665c-4d26-8f92-52e25104f674",
+    "4cba1aa9-4d2d-46af-b598-b90a3962f933",
+    "24d1c7fb-d508-400f-95b6-254694cd6e81",
+    "0128e367-9cd6-487d-b5fc-797699afad63",
+    "ad0b1547-7555-43ea-902e-8abdd032a907",
+    "ad81a6fd-a17e-4543-bbda-0f7dff89f670",
+    "07bfa8c4-a625-46e1-9966-edaedce98dcb",
+    "3d70d826-6689-410d-b280-6f62c64de6c7",
+    "8d8a8e9b-8e66-4347-99d6-c1785c46305a",
+    "5dd61125-a4bf-4c51-bc12-1f1f3367eab9",
+    ""
+}
 
+return whitelistedHWIDs
