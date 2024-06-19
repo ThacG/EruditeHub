@@ -1,7 +1,9 @@
 local whitelistedHWIDs = {
-    "",
+    "8d8a8e9b-8e66-4347-99d6-c1785c46305a",
     "",
     ""
 }
+
+-- me
 
 return whitelistedHWIDs
