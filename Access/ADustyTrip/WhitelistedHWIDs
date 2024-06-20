@@ -1,9 +1,12 @@
 local whitelistedHWIDs = {
     "8d8a8e9b-8e66-4347-99d6-c1785c46305a",
     "38de14bd-ae9b-4300-95c3-83959da1f535",
+    "C760AE26-C54A-4BCB-8567-2FA082D94701",
     ""
 }
 
 -- me
+-- lolipopfail
+-- yelling godz
 
 return whitelistedHWIDs
