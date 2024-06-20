@@ -4,7 +4,7 @@ local blacklistedHWIDs = {
     "456c2b4c-2c72-4586-bc90-21df430a7d7c",
     "ad410e79-e149-48b2-b726-cae68df8d8be",
     "b6b3c582-22c0-4227-a9fd-62dab3d526bf",
-    "8d8a8e9b-8e66-4347-99d6-c1785c46305a"
+    ""
 }
 
 return blacklistedHWIDs
