@@ -6,7 +6,11 @@ local whitelistedHWIDs = {
     "E271CF3E-4884-41C2-8B5D-3541BEA15784",
     "0930BB7C-1A6F-4CF3-9BD9-0B521FD8E0E5",
     "567F7000-F726-44EF-9774-17B94C38D07F",
-    ""
+    "7 DAYS WINNER BELOW",
+    "632EC984-F422-4E36-9D62-8BCB143EC537",
+    "6B81364E-087F-4461-ABAA-4A3E87E56EFF",
+    "37EE3C8A-11F5-4697-98D7-A1A0AFA4F648",
+    "032B3D81-2489-413D-B285-59C2D5D2F139"
 }
 
 -- me
@@ -16,5 +20,10 @@ local whitelistedHWIDs = {
 -- dontcare
 -- evildragon
 -- 700DOA
+-- 7 DAYS
+-- Persik
+-- Dinga
+-- Justnoob
+-- demvin
 
 return whitelistedHWIDs
