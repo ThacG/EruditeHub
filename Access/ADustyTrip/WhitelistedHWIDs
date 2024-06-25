@@ -14,6 +14,7 @@ local whitelistedHWIDs = {
     "8CD59029-AE5D-4614-AAE1-1DB3C7E68FB3",
     "0F522711-101F-4E8D-BA9A-FE44934802FF",
     "2A21401D-D87B-4ABF-B314-65CBC1CA2486",
+    "0841820E-B2FC-418D-986F-A094BB5217D0",
     ""
 }
 
@@ -32,5 +33,6 @@ local whitelistedHWIDs = {
 -- russian cat
 -- xx_hec
 -- tatetr
+-- Spedz
 
 return whitelistedHWIDs
