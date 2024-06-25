@@ -16,6 +16,7 @@ local whitelistedHWIDs = {
     "2A21401D-D87B-4ABF-B314-65CBC1CA2486",
     "0841820E-B2FC-418D-986F-A094BB5217D0",
     "511703BC-F861-4ED3-9655-01F5E0AF27C2",
+    "4A5F585D-9472-420B-921A-8E449547B256",
     ""
 }
 
@@ -36,5 +37,6 @@ local whitelistedHWIDs = {
 -- tatetr
 -- Spedz
 -- It'sHt
+-- TDD.TACKUNG
 
 return whitelistedHWIDs
