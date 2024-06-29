@@ -113,6 +113,7 @@ ExampleCode()
 wait(2)
 Library:Notify("My notification", "I am ready to use", 2, true)
 ```
+```
 --[[
 
 local Lib = Library:New()
@@ -126,3 +127,4 @@ Tab:ColorPicker()
 Lib:Init() -- important
 
 ]]
+```
