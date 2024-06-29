@@ -202,12 +202,23 @@ end
 
 function EruditeESP:ToggleESP(enabled)
     espEnabled = enabled
-    for object, espData in pairs(espObjects) do
-        if espData.BillboardGui then
-            espData.BillboardGui.Enabled = enabled
+    if not enabled then
+        for object, espData in pairs(espObjects) do
+            if espData.BillboardGui then
+                espData.BillboardGui:Destroy()
+            end
+            if espData.Tracer then
+                espData.Tracer:Remove()
+            end
+            if espData.Connection then
+                espData.Connection:Disconnect()
+            end
+            removeChams(object)
+            espObjects[object] = nil
         end
-        if espData.Tracer then
-            espData.Tracer.Visible = enabled
+    else
+        for object, _ in pairs(espObjects) do
+            updateObject(object)
         end
     end
 end
