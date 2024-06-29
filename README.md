@@ -1,16 +1,6 @@
 # Erudite UI Library
 ```
 function ExampleCode()
-	--[[
-		This UI was made by spons0parnordvpn on discord
-		Feel free to contact me for any help
-		
-		How do flags works ?
-		
-		- Well that's easy. Flags are the identifiers we give to an item which is added to the config system.
-			This identifier must be UNIQUE
-			
-	]]
 	local EruditeLib = Library:New({
 		Name = "Game Name | Erudite Hub", --\\ script name
 		FolderName = "Erudite", --\\ the name of the save config folder
