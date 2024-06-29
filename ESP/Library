@@ -1,25 +1,25 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
-local EruditeESP = {
-    Enabled = true,
-    Settings = {
-        TextColour = Color3.fromRGB(255, 255, 255),
-        VisualColour = Color3.fromRGB(255, 0, 0),
-        TextSize = 16,
-        ShowOutline = true,
-        ShowChams = true,
-        ShowName = true,
-        ShowDistance = true,
-        ShowHealth = true,
-        ShowTracers = true,
-        RemoveOnDeath = true,
-        MaxDistance = 300,
-        TeamColors = false,
-        TeamBased = false,
-    },
-    Objects = {}
+local EruditeESP = {}
+
+EruditeESP.Settings = {
+    TextColour = Color3.fromRGB(255, 255, 255),
+    VisualColour = Color3.fromRGB(255, 0, 0),
+    TextSize = 16,
+    ShowOutline = true,
+    ShowChams = true,
+    ShowName = true,
+    ShowDistance = true,
+    ShowHealth = true,
+    ShowTracers = true,
+    RemoveOnDeath = true,
+    MaxDistance = 300,
+    TeamColors = false,
+    TeamBased = false,
 }
+
+EruditeESP.Objects = {}
 
 local function Draw(Type, Properties)
     local Object = Drawing.new(Type)
@@ -205,6 +205,14 @@ function EruditeESP:InitializePlayer(player)
             player.Character:WaitForChild("Humanoid").Died:Connect(function()
                 RemoveESP(player.Character)
             end)
+        end
+    end
+end
+
+function EruditeESP:Init(settings)
+    for k, v in pairs(settings) do
+        if self.Settings[k] ~= nil then
+            self.Settings[k] = v
         end
     end
 end
