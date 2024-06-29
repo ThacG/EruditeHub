@@ -162,20 +162,19 @@ function EruditeESP:RemoveESP(player)
 end
 
 function EruditeESP:InitializePlayers()
-    initializedPlayers = true
     for _, player in pairs(Players:GetPlayers()) do
         if player ~= Players.LocalPlayer then
             self:InitializePlayer(player)
         end
     end
 
-    self.playerAddedConnection = Players.PlayerAdded:Connect(function(player)
+    Players.PlayerAdded:Connect(function(player)
         if player ~= Players.LocalPlayer then
             self:InitializePlayer(player)
         end
     end)
 
-    self.playerRemovingConnection = Players.PlayerRemoving:Connect(function(player)
+    Players.PlayerRemoving:Connect(function(player)
         self:RemoveESP(player)
     end)
 end
@@ -201,10 +200,6 @@ function EruditeESP:InitializePlayer(player)
     end
 end
 
-local initializedPlayers = false
-local initializedContainers = {}
-local initializedObjects = {}
-
 function EruditeESP:ToggleESP(enabled)
     espEnabled = enabled
     if not enabled then
@@ -221,37 +216,9 @@ function EruditeESP:ToggleESP(enabled)
             removeChams(object)
             espObjects[object] = nil
         end
-
-        if self.playerAddedConnection then
-            self.playerAddedConnection:Disconnect()
-            self.playerAddedConnection = nil
-        end
-        if self.playerRemovingConnection then
-            self.playerRemovingConnection:Disconnect()
-            self.playerRemovingConnection = nil
-        end
-        
-        if self.containerConnections then
-            for _, connection in pairs(self.containerConnections) do
-                connection:Disconnect()
-            end
-            self.containerConnections = nil
-        end
-
-        for _, player in pairs(Players:GetPlayers()) do
-            if player ~= Players.LocalPlayer then
-                self:RemoveESP(player)
-            end
-        end
-    else {
-        if initializedPlayers then
-            self:InitializePlayers()
-        end
-        for _, container in ipairs(initializedContainers) do
-            self:InitializeContainer(container)
-        end
-        for _, object in ipairs(initializedObjects) do
-            self:InitializeObject(object)
+    else
+        for object, _ in pairs(espObjects) do
+            updateObject(object)
         end
     end
 end
@@ -375,23 +342,17 @@ function EruditeESP:RemoveObject(object)
 end
 
 function EruditeESP:InitializeContainer(container)
-    if not self.containerConnections then
-        self.containerConnections = {}
-    end
-
     for _, item in pairs(container:GetChildren()) do
         updateObject(item)
     end
 
-    table.insert(self.containerConnections, container.ChildAdded:Connect(function(item)
+    container.ChildAdded:Connect(function(item)
         updateObject(item)
-    end))
+    end)
 
-    table.insert(self.containerConnections, container.ChildRemoved:Connect(function(item)
+    container.ChildRemoved:Connect(function(item)
         self:RemoveObject(item)
-    end))
-
-    table.insert(initializedContainers, container)
+    end)
 end
 
 function EruditeESP:InitializeObject(objectPath)
@@ -405,19 +366,17 @@ function EruditeESP:InitializeObject(objectPath)
     updateIfExists()
 
     if objectPath and objectPath.Parent then
-        table.insert(self.containerConnections, objectPath.Parent.ChildAdded:Connect(function(child)
+        objectPath.Parent.ChildAdded:Connect(function(child)
             if child.Name == objectPath.Name then
                 updateObject(child)
             end
-        end))
+        end)
 
-        table.insert(self.containerConnections, objectPath.Parent.ChildRemoved:Connect(function(child)
+        objectPath.Parent.ChildRemoved:Connect(function(child)
             if child == objectPath then
                 self:RemoveObject(child)
             end
-        end))
-
-        table.insert(initializedObjects, objectPath)
+        end)
     end
 end
 
