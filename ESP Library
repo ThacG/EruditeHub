@@ -3,6 +3,7 @@ local EruditeESP = {}
 EruditeESP.Settings = {
     TextColour = Color3.fromRGB(255, 255, 255),
     VisualColour = Color3.fromRGB(255, 0, 0),
+    TextSize = 16,
     ShowOutline = true,
     ShowChams = true,
     ShowName = true,
@@ -69,7 +70,7 @@ function EruditeESP:CreateESP(item)
         local text = Drawing.new("Text")
         text.Visible = true
         text.Color = self.Settings.TextColour
-        text.Size = 16
+        text.Size = self.Settings.TextSize
         text.Center = true
         text.Outline = true
         text.OutlineColor = Color3.new(0, 0, 0)
