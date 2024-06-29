@@ -202,6 +202,29 @@ function EruditeESP:InitializePlayer(player)
     end
 end
 
+local function getItemPosition(item)
+    if item:IsA("BasePart") then
+        return item.Position
+    elseif item:IsA("Model") then
+        if item.PrimaryPart then
+            return item.PrimaryPart.Position
+        else
+            local totalPosition = Vector3.new(0, 0, 0)
+            local partCount = 0
+            for _, part in pairs(item:GetChildren()) do
+                if part:IsA("BasePart") then
+                    totalPosition = totalPosition + part.Position
+                    partCount = partCount + 1
+                end
+            end
+            if partCount > 0 then
+                return totalPosition / partCount
+            end
+        end
+    end
+    return nil
+end
+
 local function applyChams(object, color)
     for _, part in pairs(object:GetDescendants()) do
         if part:IsA("BasePart") and not part:FindFirstChild("Highlight") then
@@ -225,10 +248,10 @@ end
 
 local function updateObject(object)
     if not object:IsA("Model") and not object:IsA("BasePart") then return end
-    local primaryPart = object:IsA("Model") and object.PrimaryPart or object
-    if not primaryPart then return end
+    local itemPos = getItemPosition(object)
+    if not itemPos then return end
 
-    local distance = getDistance(primaryPart.Position)
+    local distance = getDistance(itemPos)
     if distance > EruditeESP.Settings.MaxDistance then
         if espObjects[object] then
             espObjects[object].BillboardGui.Enabled = false
@@ -239,7 +262,7 @@ local function updateObject(object)
 
     if not espObjects[object] then
         local billboardGui = createBillboardGui("", EruditeESP.Settings.TextColour, EruditeESP.Settings.TextSize)
-        billboardGui.Parent = primaryPart
+        billboardGui.Parent = object:IsA("Model") and object.PrimaryPart or object
 
         local tracer = Drawing.new("Line")
         tracer.Visible = false
@@ -262,7 +285,7 @@ local function updateObject(object)
     billboardGui.Enabled = true
 
     if EruditeESP.Settings.ShowTracers then
-        local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(primaryPart.Position)
+        local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(itemPos)
         if onScreen then
             local tracer = espObjects[object].Tracer
             if Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -311,8 +334,18 @@ function EruditeESP:InitializeObject(object)
     updateObject(object)
 end
 
--- Reapply chams/glow periodically
 RunService.Heartbeat:Connect(function()
+    if not EruditeESP.Settings.EnableESP then return end
+    for object, espData in pairs(espObjects) do
+        if object:IsA("Player") and object.Character then
+            applyChams(object.Character, EruditeESP.Settings.VisualColour)
+        elseif object:IsA("Model") or object:IsA("BasePart") then
+            applyChams(object, EruditeESP.Settings.VisualColour)
+        end
+    end
+end)
+
+Players.LocalPlayer.OnTeleport:Connect(function()
     if not EruditeESP.Settings.EnableESP then return end
     for object, espData in pairs(espObjects) do
         if object:IsA("Player") and object.Character then
