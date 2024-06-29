@@ -17,6 +17,7 @@ EruditeESP.Settings = {
     MaxDistance = 300,
     TeamColors = false,
     TeamBased = false,
+    EnableESP = true,
 }
 
 local espObjects = {}
@@ -77,6 +78,8 @@ local function getDistance(position)
 end
 
 local function updateESP(player)
+    if not EruditeESP.Settings.EnableESP then return end
+
     local character = player and player.Character
     if not character or not character:FindFirstChild("HumanoidRootPart") then
         return
@@ -198,20 +201,21 @@ function EruditeESP:InitializePlayer(player)
     end
 end
 
-local function updateDroppedItem(item)
-    local primaryPart = item:IsA("Model") and item.PrimaryPart or item
+local function updateObject(object)
+    if not object:IsA("Model") and not object:IsA("BasePart") then return end
+    local primaryPart = object:IsA("Model") and object.PrimaryPart or object
     if not primaryPart then return end
 
     local distance = getDistance(primaryPart.Position)
     if distance > EruditeESP.Settings.MaxDistance then
-        if espObjects[item] then
-            espObjects[item].BillboardGui.Enabled = false
-            espObjects[item].Tracer.Visible = false
+        if espObjects[object] then
+            espObjects[object].BillboardGui.Enabled = false
+            espObjects[object].Tracer.Visible = false
         end
         return
     end
 
-    if not espObjects[item] then
+    if not espObjects[object] then
         local billboardGui = createBillboardGui("", EruditeESP.Settings.TextColour, EruditeESP.Settings.TextSize)
         billboardGui.Parent = primaryPart
 
@@ -220,25 +224,25 @@ local function updateDroppedItem(item)
         tracer.Color = EruditeESP.Settings.VisualColour
         tracer.Thickness = 1
 
-        espObjects[item] = {
+        espObjects[object] = {
             BillboardGui = billboardGui,
             Tracer = tracer,
             Connection = RunService.Heartbeat:Connect(function()
-                updateDroppedItem(item)
+                updateObject(object)
             end)
         }
     end
 
-    local billboardGui = espObjects[item].BillboardGui
+    local billboardGui = espObjects[object].BillboardGui
     local textLabel = billboardGui:FindFirstChildOfClass("TextLabel")
-    textLabel.Text = item.Name .. " | " .. distance .. " M"
+    textLabel.Text = object.Name .. " | " .. distance .. " M"
     textLabel.TextSize = EruditeESP.Settings.TextSize
     billboardGui.Enabled = true
 
     if EruditeESP.Settings.ShowTracers then
         local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(primaryPart.Position)
         if onScreen then
-            local tracer = espObjects[item].Tracer
+            local tracer = espObjects[object].Tracer
             if Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 local torsoPos = workspace.CurrentCamera:WorldToViewportPoint(Players.LocalPlayer.Character.HumanoidRootPart.Position)
                 tracer.From = Vector2.new(torsoPos.X, torsoPos.Y)
@@ -246,43 +250,55 @@ local function updateDroppedItem(item)
                 tracer.Visible = true
             end
         else
-            espObjects[item].Tracer.Visible = false
+            espObjects[object].Tracer.Visible = false
         end
     end
 
     if EruditeESP.Settings.ShowChams then
-        applyChams(item, EruditeESP.Settings.VisualColour)
+        applyChams(object, EruditeESP.Settings.VisualColour)
     end
 end
 
-function EruditeESP:RemoveDroppedItem(item)
-    if espObjects[item] then
-        espObjects[item].BillboardGui:Destroy()
-        espObjects[item].Tracer:Remove()
-        if espObjects[item].Connection then
-            espObjects[item].Connection:Disconnect()
+function EruditeESP:RemoveObject(object)
+    if espObjects[object] then
+        espObjects[object].BillboardGui:Destroy()
+        espObjects[object].Tracer:Remove()
+        if espObjects[object].Connection then
+            espObjects[object].Connection:Disconnect()
         end
-        removeChams(item)
-        espObjects[item] = nil
+        removeChams(object)
+        espObjects[object] = nil
     end
 end
 
 function EruditeESP:InitializeContainer(container)
     for _, item in pairs(container:GetChildren()) do
-        updateDroppedItem(item)
+        updateObject(item)
     end
 
     container.ChildAdded:Connect(function(item)
-        updateDroppedItem(item)
+        updateObject(item)
     end)
 
     container.ChildRemoved:Connect(function(item)
-        self:RemoveDroppedItem(item)
+        self:RemoveObject(item)
     end)
 end
 
 function EruditeESP:InitializeObject(object)
-    updateDroppedItem(object)
+    updateObject(object)
 end
+
+-- Reapply chams/glow periodically
+RunService.Heartbeat:Connect(function()
+    if not EruditeESP.Settings.EnableESP then return end
+    for player, espData in pairs(espObjects) do
+        if player:IsA("Player") and player.Character then
+            applyChams(player.Character, EruditeESP.Settings.VisualColour)
+        elseif player:IsA("Model") or player:IsA("BasePart") then
+            applyChams(player, EruditeESP.Settings.VisualColour)
+        end
+    end
+end)
 
 return EruditeESP
