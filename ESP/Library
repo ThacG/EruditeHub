@@ -20,6 +20,8 @@ EruditeESP.Settings = {
 }
 
 local espObjects = {}
+local updateFrequency = 0.1  -- Update every 0.1 seconds
+local lastUpdate = 0
 
 function EruditeESP:Init(settings)
     for k, v in pairs(settings) do
@@ -163,9 +165,13 @@ function EruditeESP:CreateESP(item)
             end
         end
 
-        RunService.Heartbeat:Connect(function()
-            if ESPEnabled then
-                updateText()
+        RunService.Heartbeat:Connect(function(deltaTime)
+            lastUpdate = lastUpdate + deltaTime
+            if lastUpdate >= updateFrequency then
+                lastUpdate = 0
+                if ESPEnabled then
+                    updateText()
+                end
             end
         end)
     end
