@@ -334,26 +334,4 @@ function EruditeESP:InitializeObject(object)
     updateObject(object)
 end
 
-RunService.Heartbeat:Connect(function()
-    if not EruditeESP.Settings.EnableESP then return end
-    for object, espData in pairs(espObjects) do
-        if object:IsA("Player") and object.Character then
-            applyChams(object.Character, EruditeESP.Settings.VisualColour)
-        elseif object:IsA("Model") or object:IsA("BasePart") then
-            applyChams(object, EruditeESP.Settings.VisualColour)
-        end
-    end
-end)
-
-Players.LocalPlayer.OnTeleport:Connect(function()
-    if not EruditeESP.Settings.EnableESP then return end
-    for object, espData in pairs(espObjects) do
-        if object:IsA("Player") and object.Character then
-            applyChams(object.Character, EruditeESP.Settings.VisualColour)
-        elseif object:IsA("Model") or object:IsA("BasePart") then
-            applyChams(object, EruditeESP.Settings.VisualColour)
-        end
-    end
-end)
-
 return EruditeESP
