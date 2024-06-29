@@ -1,0 +1,120 @@
+local EruditeESP = {}
+
+EruditeESP.Settings = {
+    Path = nil,
+    Colour = Color3.fromRGB(255, 0, 0),
+    ShowOutline = true,
+    ShowChams = true,
+    ShowName = true,
+    ShowDistance = true,
+    ShowHealth = true,
+}
+
+local espObjects = {}
+
+function EruditeESP:Init(settings)
+    for k, v in pairs(settings) do
+        if self.Settings[k] ~= nil then
+            self.Settings[k] = v
+        end
+    end
+end
+
+local function getItemPosition(item)
+    if item:IsA("BasePart") then
+        return item.Position
+    elseif item:IsA("Model") then
+        if item.PrimaryPart then
+            return item.PrimaryPart.Position
+        else
+            local totalPosition = Vector3.new(0, 0, 0)
+            local partCount = 0
+            for _, part in pairs(item:GetChildren()) do
+                if part:IsA("BasePart") then
+                    totalPosition = totalPosition + part.Position
+                    partCount = partCount + 1
+                end
+            end
+            if partCount > 0 then
+                return totalPosition / partCount
+            end
+        end
+    end
+    return nil
+end
+
+function EruditeESP:CreateESP(item)
+    if (item:IsA("BasePart") or item:IsA("Model")) and not espObjects[item] then
+        local text = Drawing.new("Text")
+        text.Visible = true
+        text.Color = self.Settings.Colour
+        text.Size = 16
+        text.Center = true
+        text.Outline = self.Settings.ShowOutline
+        text.OutlineColor = Color3.new(0, 0, 0)
+
+        espObjects[item] = text
+
+        local function updateText()
+            if not ESPEnabled then
+                text:Remove()
+                espObjects[item] = nil
+                return
+            end
+
+            if item and item.Parent then
+                local itemPos = getItemPosition(item)
+                if itemPos then
+                    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(itemPos)
+                    if onScreen then
+                        local character = game.Players.LocalPlayer.Character
+                        if character and character:FindFirstChild("HumanoidRootPart") then
+                            local charPos = character.HumanoidRootPart.Position
+                            local distance = (charPos - itemPos).Magnitude
+                            text.Text = string.format("%s\n%.1f studs", item.Name, distance)
+                            text.Position = Vector2.new(screenPos.X, screenPos.Y)
+                            text.Visible = true
+                        else
+                            text.Visible = false
+                        end
+                    else
+                        text.Visible = false
+                    end
+                else
+                    text.Visible = false
+                end
+            else
+                text:Remove()
+                espObjects[item] = nil
+            end
+        end
+
+        game:GetService("RunService").Heartbeat:Connect(function()
+            if ESPEnabled then
+                updateText()
+            end
+        end)
+    end
+end
+
+function EruditeESP:RemoveESP(item)
+    if espObjects[item] then
+        espObjects[item]:Remove()
+        espObjects[item] = nil
+    end
+end
+
+function EruditeESP:InitializeESP(container)
+    for _, item in pairs(container:GetChildren()) do
+        self:CreateESP(item)
+    end
+
+    container.ChildAdded:Connect(function(item)
+        self:CreateESP(item)
+    end)
+    container.ChildRemoved:Connect(function(item)
+        self:RemoveESP(item)
+    end)
+end
+
+return EruditeESP
