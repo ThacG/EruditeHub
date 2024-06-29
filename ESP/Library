@@ -31,23 +31,19 @@ function EruditeESP:Init(settings)
 end
 
 local function applyChams(character, color)
-    for _, part in pairs(character:GetDescendants()) do
-        if part:IsA("BasePart") and not part:FindFirstChild("Highlight") then
-            local highlight = Instance.new("Highlight")
-            highlight.FillColor = color
-            highlight.OutlineColor = color
-            highlight.FillTransparency = 0.5
-            highlight.OutlineTransparency = 0.5
-            highlight.Parent = part
-        end
+    if not character:FindFirstChild("Highlight") then
+        local highlight = Instance.new("Highlight")
+        highlight.FillColor = color
+        highlight.OutlineColor = color
+        highlight.FillTransparency = 0.5
+        highlight.OutlineTransparency = 0.5
+        highlight.Parent = character
     end
 end
 
 local function removeChams(character)
-    for _, part in pairs(character:GetDescendants()) do
-        if part:IsA("BasePart") and part:FindFirstChild("Highlight") then
-            part.Highlight:Destroy()
-        end
+    if character:FindFirstChild("Highlight") then
+        character.Highlight:Destroy()
     end
 end
 
