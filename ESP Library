@@ -29,129 +29,116 @@ function EruditeESP:Init(settings)
     end
 end
 
-local function getItemPosition(item)
-    if item:IsA("BasePart") then
-        return item.Position
-    elseif item:IsA("Model") then
-        if item.PrimaryPart then
-            return item.PrimaryPart.Position
-        else
-            local totalPosition = Vector3.new(0, 0, 0)
-            local partCount = 0
-            for _, part in pairs(item:GetChildren()) do
-                if part:IsA("BasePart") then
-                    totalPosition = totalPosition + part.Position
-                    partCount = partCount + 1
-                end
-            end
-            if partCount > 0 then
-                return totalPosition / partCount
-            end
-        end
+local function Draw(Type, Properties)
+    local Object = Drawing.new(Type)
+    for Property, Value in pairs(Properties or {}) do
+        Object[Property] = Value
     end
-    return nil
+    return Object
 end
 
-local function applyChams(item, color)
-    for _, part in pairs(item:GetDescendants()) do
-        if part:IsA("BasePart") then
-            part.Material = Enum.Material.ForceField
-            part.Color = color
-            part.Transparency = 0.5
-        end
-    end
+local function GetScreenPosition(Position)
+    local ScreenPos, IsOnScreen = workspace.CurrentCamera:WorldToViewportPoint(Position)
+    return Vector2.new(ScreenPos.X, ScreenPos.Y), IsOnScreen
 end
 
-local function applyOutline(item, color)
-    for _, part in pairs(item:GetDescendants()) do
-        if part:IsA("BasePart") then
-            local outlinePart = Instance.new("SelectionBox", part)
-            outlinePart.Adornee = part
-            outlinePart.LineThickness = 0.05
-            outlinePart.Color3 = color
-        end
-    end
-end
-
-local function getDistance(position)
+local function GetDistance(Position)
     local character = Players.LocalPlayer.Character
     if character and character:FindFirstChild("HumanoidRootPart") then
         local charPos = character.HumanoidRootPart.Position
-        local magnitude = (charPos - position).Magnitude
+        local magnitude = (charPos - Position).Magnitude
         return math.floor(magnitude * 0.28) -- Converts studs to meters and rounds down
     end
     return 0
 end
 
-local function getTeamColor(player)
-    return player.Team and player.Team.TeamColor.Color or Color3.new(1, 0, 0)
+local function GetTeamColor(Model)
+    local Player = Players:GetPlayerFromCharacter(Model)
+    return Player and Player.Team and Player.Team.TeamColor.Color or Color3.new(1, 0, 0)
 end
 
-function EruditeESP:CreateESP(item)
-    if (item:IsA("BasePart") or item:IsA("Model")) and not espObjects[item] then
-        local text = Drawing.new("Text")
-        text.Visible = true
-        text.Color = self.Settings.TextColour
-        text.Size = self.Settings.TextSize
-        text.Center = true
-        text.Outline = true
-        text.OutlineColor = Color3.new(0, 0, 0)
+local function IsHostile(Model)
+    local Player = Players:GetPlayerFromCharacter(Model)
+    local MyTeam = Players.LocalPlayer.Team
+    local TheirTeam = Player and Player.Team or nil
+    return MyTeam ~= TheirTeam
+end
 
-        local tracer = Drawing.new("Line")
-        tracer.Visible = false
-        tracer.Color = self.Settings.VisualColour
-        tracer.Thickness = 1
+local function CreateESP(Model)
+    if not Model then return end
 
-        espObjects[item] = {
-            Text = text,
-            Tracer = tracer
-        }
+    local text = Draw("Text", {
+        Color = EruditeESP.Settings.TextColour,
+        Size = EruditeESP.Settings.TextSize,
+        Center = true,
+        Outline = true,
+        OutlineColor = Color3.new(0, 0, 0),
+    })
 
-        local function updateText()
-            if not ESPEnabled then
-                text.Visible = false
-                tracer.Visible = false
-                return
-            end
+    local tracer = Draw("Line", {
+        Color = EruditeESP.Settings.VisualColour,
+        Thickness = 1,
+    })
 
-            if item and item.Parent then
-                local itemPos = getItemPosition(item)
-                if itemPos then
-                    local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(itemPos)
-                    if onScreen then
-                        local distance = getDistance(itemPos)
-                        if distance > self.Settings.MaxDistance then
-                            text.Visible = false
-                            tracer.Visible = false
-                            return
-                        end
-                        local displayText = item.Name
-                        if self.Settings.ShowDistance then
-                            displayText = displayText .. string.format("\n%d meters", distance)
-                        end
-                        if self.Settings.ShowHealth and item:FindFirstChild("Humanoid") then
-                            local health = math.ceil(item.Humanoid.Health)
-                            displayText = displayText .. string.format("\nHealth: %d", health)
-                        end
-                        text.Text = displayText
-                        text.Position = Vector2.new(screenPos.X, screenPos.Y)
-                        text.Visible = true
+    espObjects[Model] = {
+        Text = text,
+        Tracer = tracer,
+    }
 
-                        if self.Settings.ShowTracers then
-                            tracer.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y)
-                            tracer.To = Vector2.new(screenPos.X, screenPos.Y)
-                            tracer.Visible = true
-                        end
+    local function update()
+        if not EruditeESP.Enabled then
+            text.Visible = false
+            tracer.Visible = false
+            return
+        end
 
-                        if self.Settings.ShowChams then
-                            applyChams(item, self.Settings.VisualColour)
-                        end
-                        if self.Settings.ShowOutline then
-                            applyOutline(item, self.Settings.VisualColour)
-                        end
-                    else
+        if Model and Model.Parent then
+            local itemPos = Model:IsA("BasePart") and Model.Position or Model.PrimaryPart and Model.PrimaryPart.Position
+            if itemPos then
+                local screenPos, onScreen = GetScreenPosition(itemPos)
+                if onScreen then
+                    local distance = GetDistance(itemPos)
+                    if distance > EruditeESP.Settings.MaxDistance then
                         text.Visible = false
                         tracer.Visible = false
+                        return
+                    end
+                    local displayText = Model.Name
+                    if EruditeESP.Settings.ShowDistance then
+                        displayText = displayText .. string.format("\n%d meters", distance)
+                    end
+                    if EruditeESP.Settings.ShowHealth and Model:FindFirstChild("Humanoid") then
+                        local health = math.ceil(Model.Humanoid.Health)
+                        displayText = displayText .. string.format("\nHealth: %d", health)
+                    end
+                    text.Text = displayText
+                    text.Position = screenPos
+                    text.Visible = true
+
+                    if EruditeESP.Settings.ShowTracers then
+                        tracer.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y)
+                        tracer.To = screenPos
+                        tracer.Visible = true
+                    end
+
+                    if EruditeESP.Settings.ShowChams then
+                        for _, part in ipairs(Model:GetDescendants()) do
+                            if part:IsA("BasePart") then
+                                part.Material = Enum.Material.ForceField
+                                part.Color = EruditeESP.Settings.VisualColour
+                                part.Transparency = 0.5
+                            end
+                        end
+                    end
+                    if EruditeESP.Settings.ShowOutline then
+                        for _, part in ipairs(Model:GetDescendants()) do
+                            if part:IsA("BasePart") then
+                                local outlinePart = Instance.new("SelectionBox", part)
+                                outlinePart.Adornee = part
+                                outlinePart.LineThickness = 0.05
+                                outlinePart.Color3 = EruditeESP.Settings.VisualColour
+                            end
+                        end
                     end
                 else
                     text.Visible = false
@@ -161,39 +148,39 @@ function EruditeESP:CreateESP(item)
                 text.Visible = false
                 tracer.Visible = false
             end
+        else
+            text.Visible = false
+            tracer.Visible = false
         end
-
-        RunService.Heartbeat:Connect(function()
-            if ESPEnabled then
-                updateText()
-            end
-        end)
     end
+
+    RunService.Heartbeat:Connect(update)
 end
 
-function EruditeESP:RemoveESP(item)
-    if espObjects[item] then
-        espObjects[item].Text:Remove()
-        espObjects[item].Tracer:Remove()
-        espObjects[item] = nil
+local function RemoveESP(Model)
+    if espObjects[Model] then
+        espObjects[Model].Text:Remove()
+        espObjects[Model].Tracer:Remove()
+        espObjects[Model] = nil
     end
 end
 
 function EruditeESP:InitializeESP(container)
-    for _, item in pairs(container:GetChildren()) do
-        self:CreateESP(item)
+    for _, item in ipairs(container:GetChildren()) do
+        CreateESP(item)
     end
 
     container.ChildAdded:Connect(function(item)
-        self:CreateESP(item)
+        CreateESP(item)
     end)
+
     container.ChildRemoved:Connect(function(item)
-        self:RemoveESP(item)
+        RemoveESP(item)
     end)
 end
 
 function EruditeESP:InitializePlayers()
-    for _, player in pairs(Players:GetPlayers()) do
+    for _, player in ipairs(Players:GetPlayers()) do
         if player ~= Players.LocalPlayer then
             self:InitializePlayer(player)
         end
@@ -206,25 +193,25 @@ function EruditeESP:InitializePlayers()
     end)
 
     Players.PlayerRemoving:Connect(function(player)
-        self:RemoveESP(player.Character)
+        RemoveESP(player.Character)
     end)
 end
 
 function EruditeESP:InitializePlayer(player)
     player.CharacterAdded:Connect(function(character)
-        self:CreateESP(character)
+        CreateESP(character)
         if self.Settings.RemoveOnDeath then
             character:WaitForChild("Humanoid").Died:Connect(function()
-                self:RemoveESP(character)
+                RemoveESP(character)
             end)
         end
     end)
 
     if player.Character then
-        self:CreateESP(player.Character)
+        CreateESP(player.Character)
         if self.Settings.RemoveOnDeath then
             player.Character:WaitForChild("Humanoid").Died:Connect(function()
-                self:RemoveESP(player.Character)
+                RemoveESP(player.Character)
             end)
         end
     end
