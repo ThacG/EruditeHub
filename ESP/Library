@@ -17,7 +17,6 @@ EruditeESP.Settings = {
     MaxDistance = 300,
     TeamColors = false,
     TeamBased = false,
-    EnableESP = true,
 }
 
 local espObjects = {}
@@ -78,8 +77,6 @@ local function getDistance(position)
 end
 
 local function updateESP(player)
-    if not EruditeESP.Settings.EnableESP then return end
-
     local character = player and player.Character
     if not character or not character:FindFirstChild("HumanoidRootPart") then
         return
@@ -198,6 +195,16 @@ function EruditeESP:InitializePlayer(player)
             player.Character:WaitForChild("Humanoid").Died:Connect(function()
                 self:RemoveESP(player)
             end)
+        end
+    end
+end
+
+function EruditeESP:ToggleESP(enabled)
+    for object, espData in pairs(espObjects) do
+        if enabled then
+            updateESP(object)
+        else
+            self:RemoveObject(object)
         end
     end
 end
