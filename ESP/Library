@@ -199,9 +199,10 @@ function EruditeESP:InitializePlayer(player)
 end
 
 local function updateDroppedItem(item)
-    if not item:IsA("BasePart") then return end
+    local primaryPart = item:IsA("Model") and item.PrimaryPart or item
+    if not primaryPart then return end
 
-    local distance = getDistance(item.Position)
+    local distance = getDistance(primaryPart.Position)
     if distance > EruditeESP.Settings.MaxDistance then
         if espObjects[item] then
             espObjects[item].BillboardGui.Enabled = false
@@ -212,7 +213,7 @@ local function updateDroppedItem(item)
 
     if not espObjects[item] then
         local billboardGui = createBillboardGui("", EruditeESP.Settings.TextColour, EruditeESP.Settings.TextSize)
-        billboardGui.Parent = item
+        billboardGui.Parent = primaryPart
 
         local tracer = Drawing.new("Line")
         tracer.Visible = false
@@ -235,7 +236,7 @@ local function updateDroppedItem(item)
     billboardGui.Enabled = true
 
     if EruditeESP.Settings.ShowTracers then
-        local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(item.Position)
+        local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(primaryPart.Position)
         if onScreen then
             local tracer = espObjects[item].Tracer
             if Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -266,18 +267,22 @@ function EruditeESP:RemoveDroppedItem(item)
     end
 end
 
-function EruditeESP:InitializeDroppedItems()
-    for _, item in pairs(Workspace.DroppedItems:GetChildren()) do
+function EruditeESP:InitializeContainer(container)
+    for _, item in pairs(container:GetChildren()) do
         updateDroppedItem(item)
     end
 
-    Workspace.DroppedItems.ChildAdded:Connect(function(item)
+    container.ChildAdded:Connect(function(item)
         updateDroppedItem(item)
     end)
 
-    Workspace.DroppedItems.ChildRemoved:Connect(function(item)
+    container.ChildRemoved:Connect(function(item)
         self:RemoveDroppedItem(item)
     end)
+end
+
+function EruditeESP:InitializeObject(object)
+    updateDroppedItem(object)
 end
 
 return EruditeESP
