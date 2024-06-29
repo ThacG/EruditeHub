@@ -78,8 +78,7 @@ local function getDistance(position)
     if character and character:FindFirstChild("HumanoidRootPart") then
         local charPos = character.HumanoidRootPart.Position
         local magnitude = (charPos - position).Magnitude
-        local metric = magnitude * 0.28 -- Converts studs to meters
-        return math.round(metric)
+        return math.floor(magnitude * 0.28) -- Converts studs to meters and rounds down
     end
     return 0
 end
@@ -110,9 +109,8 @@ function EruditeESP:CreateESP(item)
 
         local function updateText()
             if not ESPEnabled then
-                text:Remove()
-                tracer:Remove()
-                espObjects[item] = nil
+                text.Visible = false
+                tracer.Visible = false
                 return
             end
 
@@ -160,9 +158,8 @@ function EruditeESP:CreateESP(item)
                     tracer.Visible = false
                 end
             else
-                text:Remove()
-                tracer:Remove()
-                espObjects[item] = nil
+                text.Visible = false
+                tracer.Visible = false
             end
         end
 
