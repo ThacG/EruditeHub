@@ -351,11 +351,16 @@ function EruditeESP:InitializeObject(objectPath)
 
     updateIfExists()
 
-    local parent = objectPath.Parent
-    if parent then
-        parent.ChildAdded:Connect(function(child)
+    if objectPath and objectPath.Parent then
+        objectPath.Parent.ChildAdded:Connect(function(child)
             if child.Name == objectPath.Name then
                 updateObject(child)
+            end
+        end)
+
+        objectPath.Parent.ChildRemoved:Connect(function(child)
+            if child == objectPath then
+                self:RemoveObject(child)
             end
         end)
     end
