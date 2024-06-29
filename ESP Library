@@ -43,6 +43,27 @@ local function getItemPosition(item)
     return nil
 end
 
+local function applyChams(item, color)
+    for _, part in pairs(item:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.Material = Enum.Material.ForceField
+            part.Color = color
+            part.Transparency = 0.5
+        end
+    end
+end
+
+local function applyOutline(item, color)
+    for _, part in pairs(item:GetDescendants()) do
+        if part:IsA("BasePart") then
+            local outlinePart = Instance.new("SelectionBox", part)
+            outlinePart.Adornee = part
+            outlinePart.LineThickness = 0.05
+            outlinePart.Color3 = color
+        end
+    end
+end
+
 function EruditeESP:CreateESP(item)
     if (item:IsA("BasePart") or item:IsA("Model")) and not espObjects[item] then
         local text = Drawing.new("Text")
@@ -84,23 +105,10 @@ function EruditeESP:CreateESP(item)
                             text.Visible = true
 
                             if self.Settings.ShowChams then
-                                for _, part in pairs(item:GetDescendants()) do
-                                    if part:IsA("BasePart") then
-                                        part.Material = Enum.Material.Neon
-                                        part.Color = self.Settings.VisualColour
-                                        part.Transparency = 0.5
-                                    end
-                                end
+                                applyChams(item, self.Settings.VisualColour)
                             end
                             if self.Settings.ShowOutline then
-                                for _, part in pairs(item:GetDescendants()) do
-                                    if part:IsA("BasePart") then
-                                        local outlinePart = Instance.new("SelectionBox", part)
-                                        outlinePart.Adornee = part
-                                        outlinePart.LineThickness = 0.05
-                                        outlinePart.Color3 = self.Settings.VisualColour
-                                    end
-                                end
+                                applyOutline(item, self.Settings.VisualColour)
                             end
                         else
                             text.Visible = false
