@@ -1,33 +1,39 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
-local EruditeESP = {}
+local EruditeESP = {
+    Enabled = true,
+    Settings = {
+        RemoveOnDeath = true,
+        MaxDistance = 300, -- Max Distance for ESP to render (in meters)
+        TeamColors = false, -- Whether or not the ESP color is based on team colors
+        TeamBased = false, -- Whether or not the ESP should render ESP on teammates
 
-EruditeESP.Settings = {
-    TextColour = Color3.fromRGB(255, 255, 255),
-    VisualColour = Color3.fromRGB(255, 0, 0),
-    TextSize = 16,
-    ShowOutline = true,
-    ShowChams = true,
-    ShowName = true,
-    ShowDistance = true,
-    ShowHealth = true,
-    ShowTracers = true,
-    RemoveOnDeath = true,
-    MaxDistance = 300,
-    TeamColors = false,
-    TeamBased = false,
+        Boxes = {
+            Enabled = true,
+            Color = Color3.new(1, 0, 1),
+            Thickness = 1,
+        },
+        Names = {
+            Distance = true,
+            Health = true, -- Adds health values to the nametag
+            Enabled = true,
+            Resize = true, -- Resizes the text based on the distance from the camera to the player
+            ResizeWeight = 0.05, -- How quickly names are resized based on the distance from the camera
+            Color = Color3.new(1, 1, 1),
+            Size = 18,
+            Font = 1,
+            Center = true,
+            Outline = true,
+        },
+        Tracers = {
+            Enabled = true,
+            Thickness = 1,
+            Color = Color3.new(1, 0, 1),
+        }
+    },
+    Objects = {} -- Table of ESP objects
 }
-
-local espObjects = {}
-
-function EruditeESP:Init(settings)
-    for k, v in pairs(settings) do
-        if self.Settings[k] ~= nil then
-            self.Settings[k] = v
-        end
-    end
-end
 
 local function Draw(Type, Properties)
     local Object = Drawing.new(Type)
@@ -68,27 +74,34 @@ local function CreateESP(Model)
     if not Model then return end
 
     local text = Draw("Text", {
-        Color = EruditeESP.Settings.TextColour,
-        Size = EruditeESP.Settings.TextSize,
-        Center = true,
-        Outline = true,
+        Color = EruditeESP.Settings.Names.Color,
+        Size = EruditeESP.Settings.Names.Size,
+        Center = EruditeESP.Settings.Names.Center,
+        Outline = EruditeESP.Settings.Names.Outline,
         OutlineColor = Color3.new(0, 0, 0),
     })
 
     local tracer = Draw("Line", {
-        Color = EruditeESP.Settings.VisualColour,
-        Thickness = 1,
+        Color = EruditeESP.Settings.Tracers.Color,
+        Thickness = EruditeESP.Settings.Tracers.Thickness,
+    })
+
+    local box = Draw("Quad", {
+        Color = EruditeESP.Settings.Boxes.Color,
+        Thickness = EruditeESP.Settings.Boxes.Thickness,
     })
 
     espObjects[Model] = {
         Text = text,
         Tracer = tracer,
+        Box = box,
     }
 
     local function update()
         if not EruditeESP.Enabled then
             text.Visible = false
             tracer.Visible = false
+            box.Visible = false
             return
         end
 
@@ -101,13 +114,14 @@ local function CreateESP(Model)
                     if distance > EruditeESP.Settings.MaxDistance then
                         text.Visible = false
                         tracer.Visible = false
+                        box.Visible = false
                         return
                     end
                     local displayText = Model.Name
-                    if EruditeESP.Settings.ShowDistance then
+                    if EruditeESP.Settings.Names.Distance then
                         displayText = displayText .. string.format("\n%d meters", distance)
                     end
-                    if EruditeESP.Settings.ShowHealth and Model:FindFirstChild("Humanoid") then
+                    if EruditeESP.Settings.Names.Health and Model:FindFirstChild("Humanoid") then
                         local health = math.ceil(Model.Humanoid.Health)
                         displayText = displayText .. string.format("\nHealth: %d", health)
                     end
@@ -115,42 +129,35 @@ local function CreateESP(Model)
                     text.Position = screenPos
                     text.Visible = true
 
-                    if EruditeESP.Settings.ShowTracers then
+                    if EruditeESP.Settings.Tracers.Enabled then
                         tracer.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y)
                         tracer.To = screenPos
                         tracer.Visible = true
                     end
 
-                    if EruditeESP.Settings.ShowChams then
-                        for _, part in ipairs(Model:GetDescendants()) do
-                            if part:IsA("BasePart") then
-                                part.Material = Enum.Material.ForceField
-                                part.Color = EruditeESP.Settings.VisualColour
-                                part.Transparency = 0.5
-                            end
-                        end
-                    end
-                    if EruditeESP.Settings.ShowOutline then
-                        for _, part in ipairs(Model:GetDescendants()) do
-                            if part:IsA("BasePart") then
-                                local outlinePart = Instance.new("SelectionBox", part)
-                                outlinePart.Adornee = part
-                                outlinePart.LineThickness = 0.05
-                                outlinePart.Color3 = EruditeESP.Settings.VisualColour
-                            end
-                        end
+                    if EruditeESP.Settings.Boxes.Enabled then
+                        -- Calculate box corners based on screenPos and size
+                        local boxSize = Vector2.new(50, 100) -- Example size, you might calculate this based on the model size
+                        box.PointA = screenPos - boxSize / 2
+                        box.PointB = screenPos + Vector2.new(boxSize.X / 2, -boxSize.Y / 2)
+                        box.PointC = screenPos + boxSize / 2
+                        box.PointD = screenPos + Vector2.new(-boxSize.X / 2, boxSize.Y / 2)
+                        box.Visible = true
                     end
                 else
                     text.Visible = false
                     tracer.Visible = false
+                    box.Visible = false
                 end
             else
                 text.Visible = false
                 tracer.Visible = false
+                box.Visible = false
             end
         else
             text.Visible = false
             tracer.Visible = false
+            box.Visible = false
         end
     end
 
@@ -161,6 +168,7 @@ local function RemoveESP(Model)
     if espObjects[Model] then
         espObjects[Model].Text:Remove()
         espObjects[Model].Tracer:Remove()
+        espObjects[Model].Box:Remove()
         espObjects[Model] = nil
     end
 end
