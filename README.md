@@ -12,8 +12,8 @@ function ExampleCode()
 			
 	]]
 	local EruditeLib = Library:New({
-		Name = "Erudite Hub | V2", --\\ script name
-		FolderName = "EruditeV2", --\\ the name of the save config folder
+		Name = "Game Name | Erudite Hub", --\\ script name
+		FolderName = "Erudite", --\\ the name of the save config folder
 		Icon = 5222253854, --\\ I don't recommend any changes.
 		BackgroundImage = 17681820371 --\\ I don't recommend any changes.
 	})
