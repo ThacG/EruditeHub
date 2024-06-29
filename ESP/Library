@@ -330,8 +330,24 @@ function EruditeESP:InitializeContainer(container)
     end)
 end
 
-function EruditeESP:InitializeObject(object)
-    updateObject(object)
+function EruditeESP:InitializeObject(objectPath)
+    local function updateIfExists()
+        local object = objectPath
+        if object then
+            updateObject(object)
+        end
+    end
+
+    updateIfExists()
+
+    local parent = objectPath.Parent
+    if parent then
+        parent.ChildAdded:Connect(function(child)
+            if child == objectPath then
+                updateIfExists()
+            end
+        end)
+    end
 end
 
 return EruditeESP
