@@ -127,7 +127,7 @@ function EruditeESP:CreateESP(item)
                             end
                             local displayText = item.Name
                             if self.Settings.ShowDistance then
-                                displayText = displayText .. string.format("\n%.1f studs", distance)
+                                displayText = displayText .. string.format("\n%.1f meters", distance)  -- Changed to meters
                             end
                             if self.Settings.ShowHealth and item:FindFirstChild("Humanoid") then
                                 local health = item.Humanoid.Health
