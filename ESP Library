@@ -1,8 +1,8 @@
 local EruditeESP = {}
 
 EruditeESP.Settings = {
-    Path = nil,
-    Colour = Color3.fromRGB(255, 0, 0),
+    TextColour = Color3.fromRGB(255, 255, 255),
+    VisualColour = Color3.fromRGB(255, 0, 0),
     ShowOutline = true,
     ShowChams = true,
     ShowName = true,
@@ -47,10 +47,10 @@ function EruditeESP:CreateESP(item)
     if (item:IsA("BasePart") or item:IsA("Model")) and not espObjects[item] then
         local text = Drawing.new("Text")
         text.Visible = true
-        text.Color = self.Settings.Colour
+        text.Color = self.Settings.TextColour
         text.Size = 16
         text.Center = true
-        text.Outline = self.Settings.ShowOutline
+        text.Outline = true
         text.OutlineColor = Color3.new(0, 0, 0)
 
         espObjects[item] = text
@@ -71,9 +71,37 @@ function EruditeESP:CreateESP(item)
                         if character and character:FindFirstChild("HumanoidRootPart") then
                             local charPos = character.HumanoidRootPart.Position
                             local distance = (charPos - itemPos).Magnitude
-                            text.Text = string.format("%s\n%.1f studs", item.Name, distance)
+                            local displayText = item.Name
+                            if self.Settings.ShowDistance then
+                                displayText = displayText .. string.format("\n%.1f studs", distance)
+                            end
+                            if self.Settings.ShowHealth and item:FindFirstChild("Humanoid") then
+                                local health = item.Humanoid.Health
+                                displayText = displayText .. string.format("\nHealth: %.1f", health)
+                            end
+                            text.Text = displayText
                             text.Position = Vector2.new(screenPos.X, screenPos.Y)
                             text.Visible = true
+
+                            if self.Settings.ShowChams then
+                                for _, part in pairs(item:GetDescendants()) do
+                                    if part:IsA("BasePart") then
+                                        part.Material = Enum.Material.Neon
+                                        part.Color = self.Settings.VisualColour
+                                        part.Transparency = 0.5
+                                    end
+                                end
+                            end
+                            if self.Settings.ShowOutline then
+                                for _, part in pairs(item:GetDescendants()) do
+                                    if part:IsA("BasePart") then
+                                        local outlinePart = Instance.new("SelectionBox", part)
+                                        outlinePart.Adornee = part
+                                        outlinePart.LineThickness = 0.05
+                                        outlinePart.Color3 = self.Settings.VisualColour
+                                    end
+                                end
+                            end
                         else
                             text.Visible = false
                         end
