@@ -313,8 +313,12 @@ end
 
 function EruditeESP:RemoveObject(object)
     if espObjects[object] then
-        espObjects[object].BillboardGui:Destroy()
-        espObjects[object].Tracer:Remove()
+        if espObjects[object].BillboardGui then
+            espObjects[object].BillboardGui:Destroy()
+        end
+        if espObjects[object].Tracer then
+            espObjects[object].Tracer:Remove()
+        end
         if espObjects[object].Connection then
             espObjects[object].Connection:Disconnect()
         end
