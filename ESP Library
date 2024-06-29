@@ -154,7 +154,7 @@ local function CreateESP(Model)
         end
     end
 
-    RunService.Heartbeat:Connect(update)
+    RunService.Stepped:Connect(update)
 end
 
 local function RemoveESP(Model)
