@@ -284,6 +284,68 @@ local function removeChams(object)
     end
 end
 
+local function createBoxESP(object, color)
+    local boxParts = {}
+
+    local function createLine()
+        local line = Drawing.new("Line")
+        line.Color = color
+        line.Thickness = 1
+        line.Transparency = 1
+        return line
+    end
+
+    boxParts.TopLeft = createLine()
+    boxParts.TopRight = createLine()
+    boxParts.BottomLeft = createLine()
+    boxParts.BottomRight = createLine()
+
+    return boxParts
+end
+
+local function updateBoxESP(boxParts, object)
+    local camera = workspace.CurrentCamera
+    local cframe = object.CFrame
+    local size = object.Size
+
+    local corners = {
+        TopLeft = cframe * CFrame.new(-size.X/2, size.Y/2, 0),
+        TopRight = cframe * CFrame.new(size.X/2, size.Y/2, 0),
+        BottomLeft = cframe * CFrame.new(-size.X/2, -size.Y/2, 0),
+        BottomRight = cframe * CFrame.new(size.X/2, -size.Y/2, 0)
+    }
+
+    local function worldToViewportPoint(pos)
+        return camera:WorldToViewportPoint(pos)
+    end
+
+    local topLeft, topLeftVisible = worldToViewportPoint(corners.TopLeft.Position)
+    local topRight, topRightVisible = worldToViewportPoint(corners.TopRight.Position)
+    local bottomLeft, bottomLeftVisible = worldToViewportPoint(corners.BottomLeft.Position)
+    local bottomRight, bottomRightVisible = worldToViewportPoint(corners.BottomRight.Position)
+
+    if topLeftVisible and topRightVisible and bottomLeftVisible and bottomRightVisible then
+        boxParts.TopLeft.From = Vector2.new(topLeft.X, topLeft.Y)
+        boxParts.TopLeft.To = Vector2.new(topRight.X, topRight.Y)
+        boxParts.TopRight.From = Vector2.new(topRight.X, topRight.Y)
+        boxParts.TopRight.To = Vector2.new(bottomRight.X, bottomRight.Y)
+        boxParts.BottomLeft.From = Vector2.new(bottomLeft.X, bottomLeft.Y)
+        boxParts.BottomLeft.To = Vector2.new(topLeft.X, topLeft.Y)
+        boxParts.BottomRight.From = Vector2.new(bottomRight.X, bottomRight.Y)
+        boxParts.BottomRight.To = Vector2.new(bottomLeft.X, bottomLeft.Y)
+
+        boxParts.TopLeft.Visible = true
+        boxParts.TopRight.Visible = true
+        boxParts.BottomLeft.Visible = true
+        boxParts.BottomRight.Visible = true
+    else
+        boxParts.TopLeft.Visible = false
+        boxParts.TopRight.Visible = false
+        boxParts.BottomLeft.Visible = false
+        boxParts.BottomRight.Visible = false
+    end
+end
+
 local function updateObject(object)
     if not object:IsA("Model") and not object:IsA("BasePart") then return end
     local itemPos = getItemPosition(object)
@@ -295,7 +357,9 @@ local function updateObject(object)
             espObjects[object].BillboardGui.Enabled = false
             espObjects[object].Tracer.Visible = false
             if espObjects[object].Box then
-                espObjects[object].Box.Visible = false
+                for _, line in pairs(espObjects[object].Box) do
+                    line.Visible = false
+                end
             end
         end
         return
@@ -312,14 +376,7 @@ local function updateObject(object)
 
         local box
         if EruditeESP.Settings.ShowBox then
-            box = Instance.new("BoxHandleAdornment")
-            box.Size = Vector3.new(5, 7, 5) -- Adjust the size as needed
-            box.Color3 = EruditeESP.Settings.VisualColour
-            box.Transparency = 0.5
-            box.AlwaysOnTop = true
-            box.Adornee = object:IsA("Model") and object.PrimaryPart or object
-            box.ZIndex = 2
-            box.Parent = object
+            box = createBoxESP(object:IsA("Model") and object.PrimaryPart or object, EruditeESP.Settings.VisualColour)
         end
 
         espObjects[object] = {
@@ -360,9 +417,7 @@ local function updateObject(object)
     if EruditeESP.Settings.ShowBox then
         local box = espObjects[object].Box
         if box then
-            box.Adornee = object:IsA("Model") and object.PrimaryPart or object
-            box.Color3 = EruditeESP.Settings.VisualColour
-            box.Visible = true
+            updateBoxESP(box, object:IsA("Model") and object.PrimaryPart or object)
         end
     end
 end
@@ -376,7 +431,9 @@ function EruditeESP:RemoveObject(object)
             espObjects[object].Tracer:Remove()
         end
         if espObjects[object].Box then
-            espObjects[object].Box:Destroy()
+            for _, line in pairs(espObjects[object].Box) do
+                line:Remove()
+            end
         end
         if espObjects[object].Connection then
             espObjects[object].Connection:Disconnect()
