@@ -10,8 +10,8 @@ local EruditeESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/Th
 ## Settings
 ```lua
 EruditeESP:Init({
-    TextColour = color3,
-    VisualColour = color3,
+    TextColour = color3, -- Determines the colour of the text, such as name, hp and distance
+    VisualColour = color3, -- Determines the colour of the chams, tracers and box
     TextSize = value,
     MaxDistance = value,
     ShowChams = bool,
@@ -21,7 +21,7 @@ EruditeESP:Init({
     ShowDistance = bool,
     ShowHealth = bool,
     RemoveOnDeath = bool,
-    UseMeters = bool
+    UseMeters = bool -- Use meters instead of studs
 })
 ```
 
