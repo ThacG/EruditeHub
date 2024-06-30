@@ -75,7 +75,7 @@ EruditeESP:ClearAllESP() -- Stop all ESP after 5 seconds
 
 ## Note
 You do not have to Init the settings if you use wish to use the default settings
-```
+```lua
 local EruditeESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/ThacG/EruditeHub/main/ESP/Library"))()
 
 EruditeESP:InitializePlayers() -- Initialize Player ESP
