@@ -12,15 +12,15 @@ local EruditeESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/Th
 EruditeESP:Init({
     TextColour = color3, -- Determines the colour of the text, such as name, hp and distance
     VisualColour = color3, -- Determines the colour of the chams, tracers and box
-    TextSize = value,
-    MaxDistance = value,
-    ShowChams = bool,
-    ShowTracers = bool,
-    ShowBox = bool,
-    ShowName = bool,
-    ShowDistance = bool,
-    ShowHealth = bool,
-    RemoveOnDeath = bool,
+    TextSize = value, -- Determines the size of the text
+    MaxDistance = value, -- Determines the maximum distance to display the ESP (if you use studs, maximum will be studs, if you use meters, maximum will be meters)
+    ShowChams = bool, -- Makes the players/objects glow that can be seen through walls
+    ShowTracers = bool, -- Tracers that can be seen through walls
+    ShowBoxes = bool, -- Put boxes around the players/objects that can be seen through walls
+    ShowName = bool, -- Displays the name of the player/object
+    ShowDistance = bool, -- Displays the distance of the player/object
+    ShowHealth = bool, -- Displays the health of the player/object
+    RemoveOnDeath = bool, -- Remove ESP when health is 0
     UseMeters = bool -- Use meters instead of studs
 })
 ```
@@ -56,13 +56,27 @@ EruditeESP:Init({
     MaxDistance = 300,
     ShowChams = false,
     ShowTracers = false,
-    ShowBox = true,
+    ShowBoxes = true,
     ShowName = true,
     ShowDistance = true,
     ShowHealth = true,
     RemoveOnDeath = true,
     UseMeters = false
 })
+
+EruditeESP:InitializePlayers() -- Initialize Player ESP
+EruditeESP:InitializeContainer(game.Workspace.DroppedItems) -- Initialize ESP for all objects inside of game.Workspace.DroppedItems
+EruditeESP:InitializeObject(game.Workspace.DroppedItems, "Lucky Potion") -- Initialize the ESP for all objects named "Lucky Potion" inside of game.Workspace.DroppedItems
+
+task.wait(5)
+
+EruditeESP:ClearAllESP() -- Stop all ESP after 5 seconds
+```
+
+## Note
+You do not have to Init the settings if you use wish to use the default settings
+```
+local EruditeESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/ThacG/EruditeHub/main/ESP/Library"))()
 
 EruditeESP:InitializePlayers() -- Initialize Player ESP
 EruditeESP:InitializeContainer(game.Workspace.DroppedItems) -- Initialize ESP for all objects inside of game.Workspace.DroppedItems
