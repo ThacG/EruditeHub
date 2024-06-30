@@ -1,5 +1,6 @@
 # Erudite ESP Library V1
 This is an ESP Library made by thacy on Discord, please report any bugs to me directly or on https://discord.gg/erudite
+
 This is a lightweight and simple to use ESP Library that works on anything
 
 ## Booting the Library
