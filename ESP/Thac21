@@ -1,0 +1,434 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+local EruditeESP = {}
+
+EruditeESP.Settings = {
+    TextColour = Color3.fromRGB(255, 255, 255),
+    VisualColour = Color3.fromRGB(255, 0, 0),
+    TextSize = 8,
+    ShowChams = true,
+    ShowTracers = false,
+    ShowBox = true, -- Ensure ShowBox is enabled
+    ShowName = true,
+    ShowDistance = true,
+    ShowHealth = true,
+    RemoveOnDeath = true,
+    UseMeters = false,
+    MaxDistance = 300
+}
+
+local espObjects = {}
+local espConnections = {}
+local espEnabled = true
+
+function EruditeESP:Init(settings)
+    for k, v in pairs(settings) do
+        if self.Settings[k] ~= nil then
+            self.Settings[k] = v
+        end
+    end
+end
+
+local function applyChamsPlayer(character, color)
+    if not character:FindFirstChild("Highlight") then
+        local highlight = Instance.new("Highlight")
+        highlight.FillColor = color
+        highlight.OutlineColor = color
+        highlight.FillTransparency = 0.5
+        highlight.OutlineTransparency = 0.5
+        highlight.Parent = character
+    end
+end
+
+local function removeChams()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Character then
+            for _, child in pairs(player.Character:GetChildren()) do
+                if child:IsA("Highlight") then
+                    child:Destroy()
+                end
+            end
+            for _, descendant in pairs(player.Character:GetDescendants()) do
+                if descendant:IsA("Highlight") then
+                    descendant:Destroy()
+                end
+            end
+        end
+    end
+
+    for object, _ in pairs(espObjects) do
+        if object:FindFirstChild("Highlight") then
+            object.Highlight:Destroy()
+        end
+        for _, descendant in pairs(object:GetDescendants()) do
+            if descendant:IsA("Highlight") then
+                descendant:Destroy()
+            end
+        end
+    end
+end
+
+local function createBillboardGui(text, color, size)
+    local billboardGui = Instance.new("BillboardGui")
+    billboardGui.Size = UDim2.new(0, size * 10, 0, size * 2)
+    billboardGui.AlwaysOnTop = true
+    billboardGui.StudsOffset = Vector3.new(0, 3, 0)
+
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Text = text
+    textLabel.TextColor3 = color
+    textLabel.TextScaled = false
+    textLabel.Font = Enum.Font.Code
+    textLabel.TextSize = size
+    textLabel.TextStrokeTransparency = 0.5
+    textLabel.Parent = billboardGui
+
+    return billboardGui
+end
+
+local function createBoxEsp(character, color)
+    local boxEsp = Instance.new("BoxHandleAdornment")
+    boxEsp.Size = character:GetExtentsSize()
+    boxEsp.Adornee = character
+    boxEsp.Color3 = color
+    boxEsp.Transparency = 0.7
+    boxEsp.ZIndex = 0
+    boxEsp.AlwaysOnTop = true
+
+    return boxEsp
+end
+
+local function getDistance(position)
+    local character = Players.LocalPlayer.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        local charPos = character.HumanoidRootPart.Position
+        local magnitude = (charPos - position).Magnitude
+        if EruditeESP.Settings.UseMeters then
+            return math.floor(magnitude * 0.28)
+        else
+            return math.floor(magnitude)
+        end
+    end
+    return 0
+end
+
+local function updateESP(player)
+    if not espEnabled then return end
+
+    local character = player and player.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then
+        return
+    end
+
+    local distance = getDistance(character.HumanoidRootPart.Position)
+    local unit = EruditeESP.Settings.UseMeters and " M" or " Studs"
+
+    if distance > EruditeESP.Settings.MaxDistance then
+        if espObjects[player] then
+            espObjects[player].BillboardGui.Enabled = false
+            espObjects[player].Tracer.Visible = false
+            if espObjects[player].Box then
+                espObjects[player].Box.Visible = false
+            end
+        end
+        return
+    end
+
+    if not espObjects[player] then
+        local billboardGui = createBillboardGui("", EruditeESP.Settings.TextColour, EruditeESP.Settings.TextSize)
+        billboardGui.Parent = character.Head
+
+        local tracer = Drawing.new("Line")
+        tracer.Visible = false
+        tracer.Color = EruditeESP.Settings.VisualColour
+        tracer.Thickness = 1
+
+        local box
+        if EruditeESP.Settings.ShowBox then
+            box = createBoxEsp(character, EruditeESP.Settings.VisualColour)
+            box.Parent = character
+        end
+
+        espObjects[player] = {
+            BillboardGui = billboardGui,
+            Tracer = tracer,
+            Box = box,
+            Connection = RunService.Heartbeat:Connect(function()
+                updateESP(player)
+            end)
+        }
+    end
+
+    local billboardGui = espObjects[player].BillboardGui
+    local textLabel = billboardGui:FindFirstChildOfClass("TextLabel")
+
+    local displayText = ""
+    if EruditeESP.Settings.ShowName then
+        displayText = player.Name
+    end
+    if EruditeESP.Settings.ShowHealth and character:FindFirstChild("Humanoid") then
+        local health = math.ceil(character.Humanoid.Health)
+        displayText = displayText .. (displayText ~= "" and " | " or "") .. health .. " HP"
+    end
+    if EruditeESP.Settings.ShowDistance then
+        displayText = displayText .. (displayText ~= "" and " | " or "") .. distance .. unit
+    end
+
+    textLabel.Text = displayText
+    textLabel.TextSize = EruditeESP.Settings.TextSize
+    billboardGui.Enabled = true
+
+    if EruditeESP.Settings.ShowTracers then
+        local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(character.HumanoidRootPart.Position)
+        if onScreen then
+            local tracer = espObjects[player].Tracer
+            if Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                local torsoPos = workspace.CurrentCamera:WorldToViewportPoint(Players.LocalPlayer.Character.HumanoidRootPart.Position)
+                tracer.From = Vector2.new(torsoPos.X, torsoPos.Y)
+                tracer.To = Vector2.new(screenPos.X, screenPos.Y)
+                tracer.Visible = true
+            end
+        else
+            espObjects[player].Tracer.Visible = false
+        end
+    end
+
+    if EruditeESP.Settings.ShowChams then
+        applyChamsPlayer(character, EruditeESP.Settings.VisualColour)
+    end
+
+    if EruditeESP.Settings.ShowBox and espObjects[player].Box then
+        espObjects[player].Box.Visible = true
+    end
+end
+
+function EruditeESP:RemoveESP(player)
+    if espObjects[player] then
+        espObjects[player].BillboardGui:Destroy()
+        espObjects[player].Tracer:Remove()
+        if espObjects[player].Box then
+            espObjects[player].Box:Destroy()
+        end
+        if espObjects[player].Connection then
+            espObjects[player].Connection:Disconnect()
+        end
+        espObjects[player] = nil
+    end
+end
+
+function EruditeESP:InitializePlayers()
+    if not espEnabled then return end
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= Players.LocalPlayer then
+            self:InitializePlayer(player)
+        end
+    end
+
+    table.insert(espConnections, Players.PlayerAdded:Connect(function(player)
+        if player ~= Players.LocalPlayer then
+            self:InitializePlayer(player)
+        end
+    end))
+
+    table.insert(espConnections, Players.PlayerRemoving:Connect(function(player)
+        self:RemoveESP(player)
+    end))
+end
+
+function EruditeESP:InitializePlayer(player)
+    if not espEnabled then return end
+
+    table.insert(espConnections, player.CharacterAdded:Connect(function(character)
+        character:WaitForChild("HumanoidRootPart")
+        updateESP(player)
+        if self.Settings.RemoveOnDeath then
+            table.insert(espConnections, character:WaitForChild("Humanoid").Died:Connect(function()
+                self:RemoveESP(player)
+            end))
+        end
+    end))
+
+    if player.Character then
+        updateESP(player)
+        if self.Settings.RemoveOnDeath then
+            table.insert(espConnections, player.Character:WaitForChild("Humanoid").Died:Connect(function()
+                self:RemoveESP(player)
+            end))
+        end
+    end
+end
+
+local function getItemPosition(item)
+    if item:IsA("BasePart") then
+        return item.Position
+    elseif item:IsA("Model") then
+        if item.PrimaryPart then
+            return item.PrimaryPart.Position
+        else
+            local totalPosition = Vector3.new(0, 0, 0)
+            local partCount = 0
+            for _, part in pairs(item:GetChildren()) do
+                if part:IsA("BasePart") then
+                    totalPosition = totalPosition + part.Position
+                    partCount = partCount + 1
+                end
+            end
+            if partCount > 0 then
+                return totalPosition / partCount
+            end
+        end
+    end
+    return nil
+end
+
+local function applyChamsObject(object, color)
+    if not object:FindFirstChild("Highlight") then
+        local highlight = Instance.new("Highlight")
+        highlight.FillColor = color
+        highlight.OutlineColor = color
+        highlight.FillTransparency = 0.5
+        highlight.OutlineTransparency = 0.5
+        highlight.Parent = object
+    end
+end
+
+local function updateObject(object)
+    if not object:IsA("Model") and not object:IsA("BasePart") then return end
+    local itemPos = getItemPosition(object)
+    if not itemPos then return end
+
+    local distance = getDistance(itemPos)
+    local unit = EruditeESP.Settings.UseMeters and " M" or " Studs"
+
+    if distance > EruditeESP.Settings.MaxDistance then
+        if espObjects[object] then
+            espObjects[object].BillboardGui.Enabled = false
+            espObjects[object].Tracer.Visible = false
+        end
+        return
+    end
+
+    if not espObjects[object] then
+        local billboardGui = createBillboardGui("", EruditeESP.Settings.TextColour, EruditeESP.Settings.TextSize)
+        billboardGui.Parent = object:IsA("Model") and object.PrimaryPart or object
+
+        local tracer = Drawing.new("Line")
+        tracer.Visible = false
+        tracer.Color = EruditeESP.Settings.VisualColour
+        tracer.Thickness = 1
+
+        espObjects[object] = {
+            BillboardGui = billboardGui,
+            Tracer = tracer,
+            Connection = RunService.Heartbeat:Connect(function()
+                updateObject(object)
+            end)
+        }
+    end
+
+    local billboardGui = espObjects[object].BillboardGui
+    local textLabel = billboardGui:FindFirstChildOfClass("TextLabel")
+    textLabel.Text = object.Name .. " | " .. distance .. unit
+    textLabel.TextSize = EruditeESP.Settings.TextSize
+    billboardGui.Enabled = true
+
+    if EruditeESP.Settings.ShowTracers then
+        local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(itemPos)
+        if onScreen then
+            local tracer = espObjects[object].Tracer
+            if Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                local torsoPos = workspace.CurrentCamera:WorldToViewportPoint(Players.LocalPlayer.Character.HumanoidRootPart.Position)
+                tracer.From = Vector2.new(torsoPos.X, torsoPos.Y)
+                tracer.To = Vector2.new(screenPos.X, screenPos.Y)
+                tracer.Visible = true
+            end
+        else
+            espObjects[object].Tracer.Visible = false
+        end
+    end
+
+    if EruditeESP.Settings.ShowChams then
+        applyChamsObject(object, EruditeESP.Settings.VisualColour)
+    end
+end
+
+function EruditeESP:RemoveObject(object)
+    if espObjects[object] then
+        if espObjects[object].BillboardGui then
+            espObjects[object].BillboardGui:Destroy()
+        end
+        if espObjects[object].Tracer then
+            espObjects[object].Tracer:Remove()
+        end
+        if espObjects[object].Connection then
+            espObjects[object].Connection:Disconnect()
+        end
+        espObjects[object] = nil
+    end
+end
+
+function EruditeESP:InitializeContainer(container)
+    if not container then
+        warn("Invalid container for InitializeContainer!")
+        return
+    end
+    
+    for _, item in pairs(container:GetChildren()) do
+        updateObject(item)
+    end
+
+    table.insert(espConnections, container.ChildAdded:Connect(function(item)
+        updateObject(item)
+    end))
+
+    table.insert(espConnections, container.ChildRemoved:Connect(function(item)
+        self:RemoveObject(item)
+    end))
+end
+
+function EruditeESP:InitializeObject(parentPath, objectName)
+    if not parentPath then
+        warn("Invalid parent path for InitializeObject!")
+        return
+    end
+
+    local function updateIfExists()
+        for _, child in pairs(parentPath:GetChildren()) do
+            if child.Name == objectName then
+                updateObject(child)
+            end
+        end
+    end
+
+    updateIfExists()
+
+    table.insert(espConnections, parentPath.ChildAdded:Connect(function(child)
+        if child.Name == objectName then
+            updateObject(child)
+        end
+    end))
+
+    table.insert(espConnections, parentPath.ChildRemoved:Connect(function(child)
+        if child.Name == objectName then
+            self:RemoveObject(child)
+        end
+    end))
+end
+
+function EruditeESP:ClearAllESP()
+    removeChams()
+    for object, _ in pairs(espObjects) do
+        self:RemoveObject(object)
+    end
+    for _, connection in pairs(espConnections) do
+        connection:Disconnect()
+    end
+    espConnections = {}
+end
+
+return EruditeESP
