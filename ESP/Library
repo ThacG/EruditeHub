@@ -14,13 +14,10 @@ EruditeESP.Settings = {
     ShowHealth = true,
     ShowTracers = true,
     RemoveOnDeath = true,
-    MaxDistance = 300,
-    TeamColors = false,
-    TeamBased = false,
+    MaxDistance = 300
 }
 
 local espObjects = {}
-local espEnabled = true
 
 function EruditeESP:Init(settings)
     for k, v in pairs(settings) do
@@ -127,7 +124,7 @@ local function updateESP(player)
 
     textLabel.Text = displayText
     textLabel.TextSize = EruditeESP.Settings.TextSize
-    billboardGui.Enabled = espEnabled
+    billboardGui.Enabled = true
 
     if EruditeESP.Settings.ShowTracers then
         local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(character.HumanoidRootPart.Position)
@@ -137,7 +134,7 @@ local function updateESP(player)
                 local torsoPos = workspace.CurrentCamera:WorldToViewportPoint(Players.LocalPlayer.Character.HumanoidRootPart.Position)
                 tracer.From = Vector2.new(torsoPos.X, torsoPos.Y)
                 tracer.To = Vector2.new(screenPos.X, screenPos.Y)
-                tracer.Visible = espEnabled
+                tracer.Visible = true
             end
         else
             espObjects[player].Tracer.Visible = false
@@ -196,29 +193,6 @@ function EruditeESP:InitializePlayer(player)
             player.Character:WaitForChild("Humanoid").Died:Connect(function()
                 self:RemoveESP(player)
             end)
-        end
-    end
-end
-
-function EruditeESP:ToggleESP(enabled)
-    espEnabled = enabled
-    if not enabled then
-        for object, espData in pairs(espObjects) do
-            if espData.BillboardGui then
-                espData.BillboardGui:Destroy()
-            end
-            if espData.Tracer then
-                espData.Tracer:Remove()
-            end
-            if espData.Connection then
-                espData.Connection:Disconnect()
-            end
-            removeChams(object)
-            espObjects[object] = nil
-        end
-    else
-        for object, _ in pairs(espObjects) do
-            updateObject(object)
         end
     end
 end
@@ -303,7 +277,7 @@ local function updateObject(object)
     local textLabel = billboardGui:FindFirstChildOfClass("TextLabel")
     textLabel.Text = object.Name .. " | " .. distance .. " M"
     textLabel.TextSize = EruditeESP.Settings.TextSize
-    billboardGui.Enabled = espEnabled
+    billboardGui.Enabled = true
 
     if EruditeESP.Settings.ShowTracers then
         local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(itemPos)
@@ -313,7 +287,7 @@ local function updateObject(object)
                 local torsoPos = workspace.CurrentCamera:WorldToViewportPoint(Players.LocalPlayer.Character.HumanoidRootPart.Position)
                 tracer.From = Vector2.new(torsoPos.X, torsoPos.Y)
                 tracer.To = Vector2.new(screenPos.X, screenPos.Y)
-                tracer.Visible = espEnabled
+                tracer.Visible = true
             end
         else
             espObjects[object].Tracer.Visible = false
@@ -377,6 +351,12 @@ function EruditeESP:InitializeObject(objectPath)
                 self:RemoveObject(child)
             end
         end)
+    end
+end
+
+function EruditeESP:ClearAllESP()
+    for object, _ in pairs(espObjects) do
+        self:RemoveObject(object)
     end
 end
 
