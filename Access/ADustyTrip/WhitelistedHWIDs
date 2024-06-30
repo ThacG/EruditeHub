@@ -7,6 +7,7 @@ local whitelistedHWIDs = {
     "0930BB7C-1A6F-4CF3-9BD9-0B521FD8E0E5",
     "567F7000-F726-44EF-9774-17B94C38D07F",
     "51d9f3d2-e987-4f86-b89e-35a4117cf49b",
+    "08CD05A1-0CA8-4C28-9B37-A338CC9F6B5A",
     "7 DAYS WINNER BELOW",
     "632EC984-F422-4E36-9D62-8BCB143EC537",
     "F044F87B-8CEC-4711-A684-9372E917188B",
@@ -30,6 +31,7 @@ local whitelistedHWIDs = {
 -- evildragon
 -- 700DOA
 -- Semire
+-- Sisyphus
 -- 7 DAYS
 -- Persik
 -- Dinga
