@@ -1,2 +1,1 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/ThacG/EruditeHub/main/Bloxburg/Beta"))()
-
