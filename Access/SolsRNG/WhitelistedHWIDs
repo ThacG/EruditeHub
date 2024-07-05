@@ -1,7 +1,13 @@
 local whitelistedHWIDs = {
+    "5d087506-c654-4673-94aa-e45c2ac3db6c",
     "be1de55a-e998-4fb7-a17b-3046d7144af0",
     "D0CB97A2-FD99-46BD-BABB-13459A2004FE",
     "0f85c149-6b02-4b6f-b4eb-65807d3f9784"
 }
+
+-- me
+-- cod
+-- D0C Next Sat
+-- drax
 
 return whitelistedHWIDs
