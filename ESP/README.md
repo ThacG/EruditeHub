@@ -49,31 +49,31 @@ ESP1:UpdateSettings({
 
 ## Intialise the ESP for Players (Except Yourself)
 ```lua
-EruditeESP:InitialisePlayers()
+ESP1:InitialisePlayers()
 ```
 
 ## Intialise the ESP for All Children of Path
 ```lua
-EruditeESP:InitialiseAllChildren(path)
+ESP1:InitialiseAllChildren(path)
 ```
 
 ## Intialise the ESP for All Descendants of Path
 ```lua
-EruditeESP:InitialiseAllDescendants(path)
+ESP1:InitialiseAllDescendants(path)
 
 -- Not recommended as it may cause performance issues/crashes, make sure you know when to use it!
 ```
 
 ## Intialise the ESP for a Specific Child
 ```lua
-EruditeESP:InitialiseChild(parentPath, objectName)
+ESP1:InitialiseChild(parentPath, objectName)
 
 -- All Models/BaseParts with the objectName you put will have ESP
 ```
 
 ## Intialise the ESP for a Specific Descendant
 ```lua
-EruditeESP:InitialiseDescendant(ancestorPath, objectName)
+ESP1:InitialiseDescendant(ancestorPath, objectName)
 
 -- All Models/BaseParts with the objectName you put will have ESP
 ```
