@@ -64,9 +64,18 @@ EruditeESP:InitialiseAllDescendants(path)
 -- Not recommended as it may cause performance issues/crashes, make sure you know when to use it!
 ```
 
-## Intialize the ESP for a Specific Object
+## Intialise the ESP for a specific Child
 ```lua
-EruditeESP:InitializeContainer(parentPath, objectName)
+EruditeESP:InitialiseChild(parentPath, objectName)
+
+-- All Models/BaseParts with the objectName you put will have ESP
+```
+
+## Intialise the ESP for a specific Descendant
+```lua
+EruditeESP:InitialiseDescendant(ancestorPath, objectName)
+
+-- All Models/BaseParts with the objectName you put will have ESP
 ```
 
 ## Stop the ESP
