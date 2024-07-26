@@ -14,7 +14,7 @@ EruditeESP:Init({
     VisualColour = color3, -- Determines the colour of the chams, tracers and box
     TextSize = value, -- Determines the size of the text
     MaxDistance = value, -- Determines the maximum distance to display the ESP (if you use studs, maximum will be studs, if you use meters, maximum will be meters)
-    ShowChams = bool, -- Makes the players/objects glow that can be seen through walls
+    ShowChams = bool, -- Highlight the players which can be seen through walls
     ShowTracers = bool, -- Tracers that can be seen through walls
     ShowBoxes = bool, -- Put boxes around the players/objects that can be seen through walls
     ShowName = bool, -- Displays the name of the player/object
