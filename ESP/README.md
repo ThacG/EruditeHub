@@ -23,6 +23,8 @@ local ESP1 = EruditeESP:Init({
     RemoveOnDeath = bool, -- Remove ESP when health is 0
     UseMeters = bool -- Use meters instead of studs
 })
+
+-- Remember to give it a variable name, which is ESP1 in this example
 ```
 
 ## Update Settings
@@ -41,6 +43,8 @@ ESP1:UpdateSettings({
     RemoveOnDeath = bool,
     UseMeters = bool
 })
+
+-- Updating settings of ESP1
 ```
 
 ## Intialize the ESP for Players (Except Yourself)
