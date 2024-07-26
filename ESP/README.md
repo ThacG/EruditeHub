@@ -104,20 +104,8 @@ local ESP1 = EruditeESP:Init({
     MaxDistance = 300
 })
 
-local ESP2 = EruditeESP:Init({
-    TextColour = Color3.fromRGB(155, 155, 155),
-    VisualColour = Color3.fromRGB(255, 0, 0),
-    TextSize = 8,
-    ShowChams = false,
-    ShowTracers = false,
-    ShowBoxes = true,
-    ShowName = true,
-    ShowDistance = true,
-    ShowHealth = true,
-    RemoveOnDeath = true,
-    UseMeters = false,
-    MaxDistance = 300
-})
+-- Using default settings for ESP2
+local ESP2 = EruditeESP:Init()
 
 ESP1:InitialisePlayers()
 ESP2:InitialiseAllChildren(game.Workspace.DroppedItems)
