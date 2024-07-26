@@ -64,6 +64,13 @@ ESP1:InitialiseAllDescendants(path)
 -- Not recommended as it may cause performance issues/crashes, make sure you know when to use it!
 ```
 
+## Intialise the ESP on Humanoids for All Descendants of Path
+```lua
+ESP1:InitialiseHumanoids(path)
+
+-- This is good for NPCs, Entities, Monsters etc.
+```
+
 ## Intialise the ESP for a Specific Child
 ```lua
 ESP1:InitialiseChild(parentPath, objectName)
