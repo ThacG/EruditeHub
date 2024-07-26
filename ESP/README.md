@@ -118,6 +118,8 @@ ESP1:UpdateSettings({
     ShowTracers = false
 })
 
+task.wait(5)
+
 -- This will clear all ESP of ESP2 after another 5 seconds
 EruditeESP:ClearESP(ESP2)
 ```
