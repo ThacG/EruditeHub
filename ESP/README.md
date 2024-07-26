@@ -64,14 +64,14 @@ EruditeESP:InitialiseAllDescendants(path)
 -- Not recommended as it may cause performance issues/crashes, make sure you know when to use it!
 ```
 
-## Intialise the ESP for a specific Child
+## Intialise the ESP for a Specific Child
 ```lua
 EruditeESP:InitialiseChild(parentPath, objectName)
 
 -- All Models/BaseParts with the objectName you put will have ESP
 ```
 
-## Intialise the ESP for a specific Descendant
+## Intialise the ESP for a Specific Descendant
 ```lua
 EruditeESP:InitialiseDescendant(ancestorPath, objectName)
 
@@ -80,18 +80,34 @@ EruditeESP:InitialiseDescendant(ancestorPath, objectName)
 
 ## Stop the ESP
 ```lua
-EruditeESP:ClearAllESP()
+EruditeESP:ClearESP(ESP1)
+
+-- Clears all ESP of a specific instance, which is ESP1 in this example
 ```
 
 ## Example
 ```lua
 local EruditeESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/ThacG/EruditeHub/main/ESP/Library"))()
 
-EruditeESP:Init({
+local ESP1 = EruditeESP:Init({
     TextColour = Color3.fromRGB(255, 255, 255),
+    VisualColour = Color3.fromRGB(0, 255, 0),
+    TextSize = 8,
+    ShowChams = true,
+    ShowTracers = true,
+    ShowBoxes = true,
+    ShowName = true,
+    ShowDistance = true,
+    ShowHealth = true,
+    RemoveOnDeath = true,
+    UseMeters = false,
+    MaxDistance = 300
+})
+
+local ESP2 = EruditeESP:Init({
+    TextColour = Color3.fromRGB(155, 155, 155),
     VisualColour = Color3.fromRGB(255, 0, 0),
     TextSize = 8,
-    MaxDistance = 300,
     ShowChams = false,
     ShowTracers = false,
     ShowBoxes = true,
@@ -99,28 +115,21 @@ EruditeESP:Init({
     ShowDistance = true,
     ShowHealth = true,
     RemoveOnDeath = true,
-    UseMeters = false
+    UseMeters = false,
+    MaxDistance = 300
 })
 
-EruditeESP:InitializePlayers() -- Initialize Player ESP
-EruditeESP:InitializeContainer(game.Workspace.DroppedItems) -- Initialize ESP for all objects inside of game.Workspace.DroppedItems
-EruditeESP:InitializeObject(game.Workspace.DroppedItems, "Lucky Potion") -- Initialize the ESP for all objects named "Lucky Potion" inside of game.Workspace.DroppedItems
+ESP1:InitialisePlayers()
+ESP2:InitialiseAllChildren(game.Workspace.DroppedItems)
 
 task.wait(5)
 
-EruditeESP:ClearAllESP() -- Stop all ESP after 5 seconds
-```
+-- This will change the ESP colour and turn off tracers for ESP1 after 5 seconds
+ESP1:UpdateSettings({
+    VisualColour = Color3.fromRGB(255, 0, 0),
+    ShowTracers = false
+})
 
-## Note
-You do not have to Init the settings if you use wish to use the default settings
-```lua
-local EruditeESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/ThacG/EruditeHub/main/ESP/Library"))()
-
-EruditeESP:InitializePlayers() -- Initialize Player ESP
-EruditeESP:InitializeContainer(game.Workspace.DroppedItems) -- Initialize ESP for all objects inside of game.Workspace.DroppedItems
-EruditeESP:InitializeObject(game.Workspace.DroppedItems, "Lucky Potion") -- Initialize the ESP for all objects named "Lucky Potion" inside of game.Workspace.DroppedItems
-
-task.wait(5)
-
-EruditeESP:ClearAllESP() -- Stop all ESP after 5 seconds
+-- This will clear all ESP of ESP2 after another 5 seconds
+EruditeESP:ClearESP(ESP2)
 ```
