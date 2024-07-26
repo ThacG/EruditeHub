@@ -47,14 +47,21 @@ ESP1:UpdateSettings({
 -- Updating settings of ESP1
 ```
 
-## Intialize the ESP for Players (Except Yourself)
+## Intialise the ESP for Players (Except Yourself)
 ```lua
-EruditeESP:InitializePlayers()
+EruditeESP:InitialisePlayers()
 ```
 
-## Intialize the ESP for a Container (All Children of Path)
+## Intialise the ESP for All Children of Path
 ```lua
-EruditeESP:InitializeContainer(path)
+EruditeESP:InitialiseAllChildren(path)
+```
+
+## Intialise the ESP for All Descendants of Path
+```lua
+EruditeESP:InitialiseAllDescendants(path)
+
+-- Not recommended as it may cause performance issues/crashes, make sure you know when to use it!
 ```
 
 ## Intialize the ESP for a Specific Object
