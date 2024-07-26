@@ -105,7 +105,7 @@ local ESP1 = EruditeESP:Init({
 })
 
 -- Using default settings for ESP2
-local ESP2 = EruditeESP:Init()
+local ESP2 = EruditeESP:Init({})
 
 ESP1:InitialisePlayers()
 ESP2:InitialiseAllChildren(game.Workspace.DroppedItems)
