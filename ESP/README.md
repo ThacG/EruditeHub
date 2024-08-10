@@ -1,5 +1,5 @@
 # Erudite ESP Library V2
-This is an ESP Library made by thacy on Discord, please report any bugs to me directly or on https://discord.gg/erudite
+This is an ESP Library made by thacy on Discord, please report any bugs to me directly or on https://discord.gg/eruditehub
 
 This is a lightweight and simple to use ESP Library that works on anything, while not affecting your FPS
 
