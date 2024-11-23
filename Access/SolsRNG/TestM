@@ -1,0 +1,218 @@
+if not UserInputService.TouchEnabled then
+        OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+        print("Loaded PC")
+        OrionLib:MakeNotification({
+            Name = "Started",
+            Content = "Loaded PC version!",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+    else
+        OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/ThacG/Orion/main/mobile')))()
+        print("Loaded Mobile")
+        OrionLib:MakeNotification({
+            Name = "Started",
+            Content = "Loaded mobile version!",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+    end
+
+Window = OrionLib:MakeWindow({
+        Name = "Sol's RNG Webhook | Erudite Hub",
+        IntroEnabled = false,
+        HidePremium = true,
+        SaveConfig = true,
+        ConfigFolder = "Erudite"
+    })
+
+WebhookTab = Window:MakeTab({
+            Name = "Webhook",
+            Icon = "rbxassetid://4483345998",
+            PremiumOnly = false
+        })
+
+WebhookTab:AddSection({
+        Name = "Setup"
+    })
+
+    local function testWebhook()
+        local function sendWebhook(abd)
+            local WebhookURL = InputWebhookURL
+            local WebhookPing = InputWebhookPing
+            if WebhookPing ~= nil and WebhookPing ~= "" and not RoleIDPing then
+                WebhookPing = "<@" .. InputWebhookPing .. ">"
+            elseif WebhookPing ~= nil and WebhookPing ~= "" and RoleIDPing then
+                WebhookPing = "<@&" .. InputWebhookPing .. ">"
+            end
+        
+            local discordLink = "https://discord.gg/eruditehub"
+        
+            local player = lp
+            if not player then
+                return
+            end
+            
+            local profileName = player.Name
+        
+            local payload = {
+                content = WebhookPing,
+                embeds = {
+                    {
+                        title = "||" .. profileName .. "||",
+                        description = "**Webhook sent successfully!**" .. "\n\n「:timer:」Time: " .. os.date() .. "\n\n**Discord:** " .. discordLink,
+                        color = 0xFF0000,
+                        author = {
+                            name = gameName .. abd
+                        }
+                    }
+                },
+                username = "Test",
+                avatar_url = "https://i.imgur.com/y4zIiOD.png",
+                attachments = {}
+            }
+        
+            request({
+                Url = WebhookURL,
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json"
+                },
+                Body = Http:JSONEncode(payload)
+            })
+        end
+        
+        sendWebhook(" | Erudite Hub")
+    end
+
+WebhookTab:AddTextbox({
+        Name = "Webhook URL",
+        Default = "",
+        Save = true,
+        Flag = "webhook-1",
+        TextDisappear = true,
+        Callback = function(Value)
+            InputWebhookURL = Value
+        end	  
+    })
+
+    WebhookTab:AddTextbox({
+        Name = "Webhook Ping (Discord User ID)",
+        Default = "",
+        Save = true,
+        Flag = "webhook-2",
+        TextDisappear = true,
+        Callback = function(Value)
+            InputWebhookPing = Value
+        end	  
+    })
+
+    WebhookTab:AddToggle({
+        Name = "Ping Role ID instead of User ID",
+        Default = false,
+        Save = true,
+        Flag = "webhook-3",
+        Callback = function(Value)
+            RoleIDPing = Value
+        end    
+    })
+
+    WebhookTab:AddButton({
+        Name = "Test Webhook",
+        Callback = function()
+            local success, result = pcall(testWebhook)
+            if success then
+                OrionLib:MakeNotification({
+                    Name = "Webhook",
+                    Content = "Sent successfully!",
+                    Image = "rbxassetid://4483345998",
+                    Time = 3
+                })
+            else
+                OrionLib:MakeNotification({
+                    Name = "Error",
+                    Content = "Please provide a valid webhook URL!",
+                    Image = "rbxassetid://4483345998",
+                    Time = 3
+                })
+            end
+        end    
+    })
+    
+    local function sendMerchantWebhook(merchantName)
+        local success, result = pcall(function()
+            merchantWebhook(merchantName)
+        end)
+        if success then
+            OrionLib:MakeNotification({
+                Name = "Webhook",
+                Content = "Sent successfully!",
+                Image = "rbxassetid://4483345998",
+                Time = 3
+            })
+        else
+            OrionLib:MakeNotification({
+                Name = "Error",
+                Content = "Please provide a valid webhook URL!",
+                Image = "rbxassetid://4483345998",
+                Time = 3
+            })
+            print(result)
+        end
+    end
+    
+    local function onChildAdded(child)
+        if child:IsA("Model") then
+            if notifyMari and child.Name == "Mari" then
+                sendMerchantWebhook("Mari")
+            elseif notifyJester and child.Name == "Jester" then
+                sendMerchantWebhook("Jester")
+            end
+        end
+    end
+    
+    local function startMerchantWebhook()
+        connectionMerchant = Workspace.ChildAdded:Connect(onChildAdded)
+    end
+    
+    local function stopMerchantWebhook()
+        if connectionMerchant then
+            connectionMerchant:Disconnect()
+            connectionMerchant = nil
+        end
+    end    
+
+    WebhookTab:AddToggle({
+        Name = "Mari",
+        Default = false,
+        Save = true,
+        Flag = "webhook-6",
+        Callback = function(Value)
+            notifyMari = Value
+        end    
+    })
+
+    WebhookTab:AddToggle({
+        Name = "Jester",
+        Default = false,
+        Save = true,
+        Flag = "webhook-7",
+        Callback = function(Value)
+            notifyJester = Value
+        end    
+    })
+
+    WebhookTab:AddToggle({
+        Name = "Send Webhook On Merchant Found",
+        Default = false,
+        Save = true,
+        Flag = "webhook-8",
+        Callback = function(Value)
+            if Value then
+                startMerchantWebhook()
+            else
+                stopMerchantWebhook()
+            end
+        end
+    })
+OrionLib:Init()
