@@ -18,7 +18,6 @@ local UserInputService = game:GetService("UserInputService")
     local camera = Workspace.CurrentCamera
     local Modules = ReplicatedStorage.Modules
     serverInfo = ReplicatedStorage.ServerInfo
-    msgpack = require(ReplicatedStorage.Modules.msgpack)
     BlackmarketRemote = Modules.RemoteFunction.BlackmarketClient
     local queue_on_teleport = queue_on_teleport or syn.queue_on_teleport or fluxus.queue_on_teleport or function(...) return ... end
     local OrionLib
