@@ -158,6 +158,7 @@ WebhookTab:AddTextbox({
                     Image = "rbxassetid://4483345998",
                     Time = 3
                 })
+print(result)
             end
         end    
     })
