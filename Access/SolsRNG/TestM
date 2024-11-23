@@ -1,3 +1,42 @@
+local UserInputService = game:GetService("UserInputService")
+    local PathfindingService = game:GetService("PathfindingService")
+    local RunService = game:GetService("RunService")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local Players = game:GetService("Players")
+    local Workspace = game:GetService("Workspace")
+    local CoreGui = game:GetService("CoreGui")
+    local Lighting = game:GetService("Lighting")
+    local VirtualUser = game:GetService("VirtualUser")
+    local VIM = game:GetService("VirtualInputManager")
+    local gameLink = "https://www.roblox.com/games/" .. game.PlaceId
+    local Chat = game:GetService("Chat")
+    local LogService = game:GetService("LogService")
+    local Http = game:GetService("HttpService")
+    local TPS = game:GetService("TeleportService")
+    local Api = "https://games.roblox.com/v1/games/"
+    local lp = Players.LocalPlayer
+    local camera = Workspace.CurrentCamera
+    local Modules = ReplicatedStorage.Modules
+    local Remotes = ReplicatedStorage.Remotes
+    local Events = ReplicatedStorage.Events
+    local PlayRollEffect = Events.PlayRollEffect
+    local AutoCraftChange = Remotes.AutoCraftChange
+    local ChangeAFK = Remotes.ChangePlayerAFKMode
+    local PotionCrafting = Remotes.PotionCrafting
+    Respawn = Remotes.RespawnCharacter
+    local AuraStorage = Remotes.AuraStorage
+    UseItem = Remotes.UseItems
+    EquipItem = Remotes.EquipItem
+    local Achievement = Remotes.Achievement
+    local SetFilter = Remotes.SetFilter
+    Quest = Remotes.Quest
+    Daily = Remotes.DailyQuest
+    serverInfo = ReplicatedStorage.ServerInfo
+    msgpack = require(ReplicatedStorage.Modules.msgpack)
+    BlackmarketRemote = Modules.RemoteFunction.BlackmarketClient
+    local queue_on_teleport = queue_on_teleport or syn.queue_on_teleport or fluxus.queue_on_teleport or function(...) return ... end
+    local OrionLib
+
 if not UserInputService.TouchEnabled then
         OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
         print("Loaded PC")
