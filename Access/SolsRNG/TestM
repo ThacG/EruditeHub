@@ -17,7 +17,6 @@ local UserInputService = game:GetService("UserInputService")
     local lp = Players.LocalPlayer
     local camera = Workspace.CurrentCamera
     local Modules = ReplicatedStorage.Modules
-    local Remotes = ReplicatedStorage.Remotes
     local Events = ReplicatedStorage.Events
     local PlayRollEffect = Events.PlayRollEffect
     local AutoCraftChange = Remotes.AutoCraftChange
