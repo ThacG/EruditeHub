@@ -158,15 +158,84 @@ WebhookTab:AddTextbox({
                     Image = "rbxassetid://4483345998",
                     Time = 3
                 })
-print(result)
             end
         end    
     })
+
+    local connectionMerchant
+    local function merchantWebhook(merchantName)
+        local function sendWebhook(abd)
+            local WebhookURL = InputWebhookURL
+            local WebhookPing = InputWebhookPing
+            if WebhookPing ~= nil and WebhookPing ~= "" and not RoleIDPing then
+                WebhookPing = "<@" .. InputWebhookPing .. ">"
+            elseif WebhookPing ~= nil and WebhookPing ~= "" and RoleIDPing then
+                WebhookPing = "<@&" .. InputWebhookPing .. ">"
+            end
     
-                print(result)
+            local discordLink = "https://discord.gg/eruditehub"
+    
+            local player = lp
+            if not player then
+                return
+            end
+    
+            local profileName = player.Name
+
+            local blackmarketTable = merchantInfo()
+    
+            local payload = {
+                content = WebhookPing,
+                embeds = {
+                    {
+                        title = "||" .. profileName .. "||",
+                        description = "**Merchant Notifier:** " .. merchantName .. " found!" .. "\n\n" .. "「:timer:」Time: " .. os.date() .. "\n\n**Discord:** " .. discordLink,
+                        color = 0xFF0000,
+                        author = {
+                            name = gameName .. abd
+                        }
+                    }
+                },
+                username = "Merchant",
+                avatar_url = "https://i.imgur.com/y4zIiOD.png",
+                attachments = {}
+            }
+    
+            request({
+                Url = WebhookURL,
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json"
+                },
+                Body = Http:JSONEncode(payload)
+            })
+        end
+    
+        sendWebhook(" | Erudite Hub")
+    end
+    
+    local function sendMerchantWebhook(merchantName)
+        local success, result = pcall(function()
+            merchantWebhook(merchantName)
+        end)
+        if success then
+            OrionLib:MakeNotification({
+                Name = "Webhook",
+                Content = "Sent successfully!",
+                Image = "rbxassetid://4483345998",
+                Time = 3
+            })
+        else
+            OrionLib:MakeNotification({
+                Name = "Error",
+                Content = "Please provide a valid webhook URL!",
+                Image = "rbxassetid://4483345998",
+                Time = 3
+            })
+            print(result)
         end
     end
-    local connectionMerchant
+    
     local function onChildAdded(child)
         if child:IsA("Model") then
             if notifyMari and child.Name == "Mari" then
