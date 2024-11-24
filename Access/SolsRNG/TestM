@@ -163,28 +163,10 @@ print(result)
         end    
     })
     
-    local function sendMerchantWebhook(merchantName)
-        local success, result = pcall(function()
-            merchantWebhook(merchantName)
-        end)
-        if success then
-            OrionLib:MakeNotification({
-                Name = "Webhook",
-                Content = "Sent successfully!",
-                Image = "rbxassetid://4483345998",
-                Time = 3
-            })
-        else
-            OrionLib:MakeNotification({
-                Name = "Error",
-                Content = "Please provide a valid webhook URL!",
-                Image = "rbxassetid://4483345998",
-                Time = 3
-            })
-            print(result)
+                print(result)
         end
     end
-    
+    local connectionMerchant
     local function onChildAdded(child)
         if child:IsA("Model") then
             if notifyMari and child.Name == "Mari" then
